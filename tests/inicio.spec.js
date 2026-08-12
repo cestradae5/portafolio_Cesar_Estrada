@@ -130,9 +130,11 @@ test('Inicio uses the approved dark Batman-inspired palette through theme tokens
 })
 
 test('Inicio introduces only the scoped hero and temporary contact handoff', () => {
+  const inicio = getInicioSection()
+
   assert.doesNotMatch(html, /<footer\b/i)
   assert.doesNotMatch(html, /<form\b/i)
-  assert.doesNotMatch(html, /<(?:img|picture|svg)\b/i)
+  assert.doesNotMatch(inicio, /<(?:img|picture|svg)\b/i)
 
   const links = html.match(/<a\b[^>]*>/gi) ?? []
   assert.equal(links.length, 1, 'Inicio must expose exactly one primary action')

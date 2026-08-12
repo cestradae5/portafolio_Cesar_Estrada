@@ -7,8 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --test",
-    "test:inicio": "node --test tests/inicio.spec.js"
+    "test": "node --test \"tests/**/*.spec.js\"",
+    "test:inicio": "node --test tests/inicio.spec.js",
+    "test:proyectos": "node --test tests/proyectos.spec.js"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.13",
