@@ -15,6 +15,7 @@
   --md-sys-color-outline: #6f7da3;
   --md-sys-color-outline-variant: #505c7c;
   --md-sys-color-tertiary: #fdff72;
+  --md-sys-shape-corner-medium: 12px;
   --md-sys-shape-corner-full: 9999px;
   --md-sys-typescale-body-large-font: "Roboto Flex", "Segoe UI", sans-serif;
   --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
@@ -34,6 +35,7 @@
   --color-outline-variant: var(--md-sys-color-outline-variant);
   --color-focus: var(--md-sys-color-tertiary);
   --font-sans: var(--md-sys-typescale-body-large-font);
+  --radius-project-card: var(--md-sys-shape-corner-medium);
   --radius-hero-action: var(--md-sys-shape-corner-full);
   --spacing-rhythm: 0.5rem;
   --ease-standard: var(--md-sys-motion-easing-standard);
