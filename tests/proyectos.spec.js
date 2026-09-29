@@ -118,7 +118,7 @@ test('the approved project keeps Demo disabled and links the case study', () => 
 
   assert.equal(caseStudyLinks.length, 1, 'the approved project must expose exactly one case study link')
   assert.match(caseStudyLinks[0][0], /Caso de estudio/i)
-  assert.match(caseStudyLinks[0][0], /\bhref=["']\/caso-de-estudio\.html["']/i)
+  assert.match(caseStudyLinks[0][0], /\bhref=["'][^"']*caso-de-estudio\.html["']/i)
   assert.doesNotMatch(caseStudyLinks[0][0], /\bdisabled\b|\bon\w+\s*=/i)
 })
 

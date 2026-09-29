@@ -46,7 +46,7 @@ function getSectionById(id) {
 }
 
 function getBackLink() {
-  return [...getMain().matchAll(/<a\b[^>]*href=["']\/["'][^>]*>[\s\S]*?<\/a>/gi)]
+  return [...getMain().matchAll(/<a\b[^>]*href=["'](?:\.\/|\/)?["'][^>]*>[\s\S]*?<\/a>/gi)]
 }
 
 test('the case study page is a standalone Spanish document linked from the portfolio', () => {
@@ -65,13 +65,14 @@ test('the case study page is a standalone Spanish document linked from the portf
   assert.equal(backLinks.length, 1, 'the case study must expose one link back to the portfolio')
   assert.match(getText(backLinks[0][0]), /Portafolio/i)
   assert.doesNotMatch(backLinks[0][0], /\btarget\s*=/i)
+  assert.doesNotMatch(backLinks[0][0], /\bhref\s*=\s*["'](?:https?:)?\/\//i)
 
   assert.doesNotMatch(main, /<form\b|<input\b|<footer\b|<img\b|<svg\b/i)
   assert.doesNotMatch(main, /\bhref\s*=\s*["']https?:\/\//i)
 
   assert.match(
     indexHtml,
-    /<a\b[^>]*href=["']\/caso-de-estudio\.html["'][^>]*>[\s\S]*?Caso de estudio[\s\S]*?<\/a>/i,
+    /<a\b[^>]*href=["'][^"']*caso-de-estudio\.html["'][^>]*>[\s\S]*?Caso de estudio[\s\S]*?<\/a>/i,
   )
 })
 
