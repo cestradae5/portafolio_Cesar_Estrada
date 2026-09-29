@@ -8,7 +8,7 @@ const css = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8')
 const approvedProject = {
   title: 'Sistema de asistencia Escolar',
   description:
-    'Solución integral para gestionar y controlar la asistencia del personal docente mediante códigos QR dinámicos y reconocimiento biométrico facial. Permite generar reportes detallados por día, semana y mes, y administrar horarios personalizados por usuario.',
+    'Solución integral para gestionar y controlar la asistencia del personal docente mediante códigos QR estáticos con token rotativo, con reconocimiento biométrico facial en desarrollo. Permite generar reportes detallados por día, semana y mes, y administrar horarios personalizados por usuario.',
   stackLayers: {
     Frontend: ['React.js', 'Vite', 'Tailwind CSS', 'Lucide Icons'],
     Backend: ['Express.js'],
@@ -29,12 +29,13 @@ function getProjectsSection() {
   const main = html.slice(mainStart, mainEnd)
   const sections = [...main.matchAll(/<section\b[^>]*>/gi)].map((match) => match[0])
 
-  assert.ok(sections.length >= 2, 'Proyectos must follow Inicio inside main')
+  assert.ok(sections.length >= 4, 'Proyectos must follow Habilidades inside main')
   assert.match(sections[0], /\bid=["']inicio["']/i)
-  assert.match(sections[1], /\bid=["']proyectos["']/i)
-  assert.match(sections[1], /\baria-labelledby=["']proyectos-title["']/i)
+  assert.match(sections[1], /\bid=["']habilidades["']/i)
+  assert.match(sections[2], /\bid=["']proyectos["']/i)
+  assert.match(sections[2], /\baria-labelledby=["']proyectos-title["']/i)
 
-  const sectionStart = html.indexOf(sections[1], mainStart)
+  const sectionStart = html.indexOf(sections[2], mainStart)
   const sectionEnd = html.indexOf('</section>', sectionStart)
 
   assert.notEqual(sectionEnd, -1, 'the Proyectos section must be closed')
@@ -54,6 +55,10 @@ function getCards(proyectos) {
 
 function getDisabledActions(card) {
   return [...card.matchAll(/<button\b[^>]*>[\s\S]*?<\/button>/gi)]
+}
+
+function getCaseStudyLink(card) {
+  return [...card.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/gi)]
 }
 
 test('Proyectos follows Inicio with a labeled section and exactly one semantic card', () => {
@@ -90,27 +95,31 @@ test('the approved project presents only approved Spanish content and keeps its 
     projectText.includes(approvedProject.repositoryStatus),
     'the private repository status must be plain text',
   )
-  assert.doesNotMatch(project, /<a\b|\bhref\s*=|https?:\/\/|github\.com/i)
+  assert.doesNotMatch(project, /https?:\/\//i)
+  assert.doesNotMatch(project, /github\.com/i)
+  assert.doesNotMatch(project, /\btarget\s*=/i)
   assert.match(project, /<img\b[^>]*\bsrc=["']\/images\/projects\/dashboard_kg\.png["']/i)
   assert.match(project, /<img\b[^>]*\balt=["']Vista previa del Sistema de asistencia Escolar["']/i)
   assert.doesNotMatch(project, /<(?:picture|video|source)\b/i)
   assert.doesNotMatch(projectText, /solicitar acceso|captura|screenshot/i)
 })
 
-test('the approved project exposes exactly two unavailable actions as disabled native buttons', () => {
+test('the approved project keeps Demo disabled and links the case study', () => {
   const [project] = getCards(getProjectsSection())
   const actions = getDisabledActions(project)
+  const caseStudyLinks = getCaseStudyLink(project)
 
   assert.doesNotMatch(project, /<form\b|\btype=["']submit["']/i)
-  assert.equal(actions.length, 2, 'the approved project must expose exactly two unavailable actions')
-  assert.ok(actions.some((action) => /\bDemo\b/i.test(action[0])))
-  assert.ok(actions.some((action) => /Caso de estudio/i.test(action[0])))
+  assert.equal(actions.length, 1, 'the approved project must expose exactly one disabled native button')
+  assert.match(actions[0][0], /\bDemo\b/i)
+  assert.match(actions[0][0], /\btype=["']button["']/i)
+  assert.match(actions[0][0], /\bdisabled\b/i)
+  assert.doesNotMatch(actions[0][0], /\bhref\s*=|\bon\w+\s*=/i)
 
-  for (const action of actions) {
-    assert.match(action[0], /\btype=["']button["']/i)
-    assert.match(action[0], /\bdisabled\b/i)
-    assert.doesNotMatch(action[0], /\bhref\s*=|\bon\w+\s*=/i)
-  }
+  assert.equal(caseStudyLinks.length, 1, 'the approved project must expose exactly one case study link')
+  assert.match(caseStudyLinks[0][0], /Caso de estudio/i)
+  assert.match(caseStudyLinks[0][0], /\bhref=["']\/caso-de-estudio\.html["']/i)
+  assert.doesNotMatch(caseStudyLinks[0][0], /\bdisabled\b|\bon\w+\s*=/i)
 })
 
 test('Proyectos uses token-backed cards stacked in a single column and wraps essential copy', () => {

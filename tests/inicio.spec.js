@@ -6,9 +6,9 @@ const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8')
 const css = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8')
 
 const approvedCopy = {
-  identity: 'Estudiante de Ingeniería en Sistemas y Desarrollador Web',
+  identity: 'Ingeniería en Sistemas · Universidad Mariano Gálvez',
   name: 'Cesar Armando Estrada Elias',
-  title: 'Desarrollador Web | Estudiante de Ingeniería en Sistemas, 4.º año',
+  title: 'Desarrollador Web · IA y Agentes | 5.º año de Ingeniería en Sistemas',
   impact:
     'Construyo soluciones web accesibles, claras y orientadas a resolver problemas reales con una implementación efectiva.',
   cta: 'Contacto',
