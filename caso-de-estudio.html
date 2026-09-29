@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Caso de estudio del Sistema de asistencia docente del Colegio Kids Garden: problema, restricciones, decisiones de arquitectura, capacidades y resultados."
+    />
+    <title>Sistema de asistencia docente | Cesar Armando Estrada Elias</title>
+    <meta name="theme-color" content="#141414" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_GT" />
+    <meta property="og:site_name" content="Cesar Armando Estrada Elias" />
+    <meta
+      property="og:title"
+      content="Caso de estudio: Sistema de asistencia docente | Cesar Armando Estrada Elias"
+    />
+    <meta
+      property="og:description"
+      content="Problema, restricciones, decisiones de arquitectura, capacidades, alternativas descartadas y resultados del sistema de asistencia docente del Colegio Kids Garden."
+    />
+    <meta name="twitter:card" content="summary" />
+  </head>
+  <body class="bg-surface font-sans text-on-surface antialiased">
+    <main class="bg-surface px-6 py-16 sm:px-8 sm:py-24 lg:px-12">
+      <article class="mx-auto w-full max-w-3xl space-y-12">
+        <a
+          href="/"
+          class="inline-flex min-h-12 items-center justify-center rounded-hero-action border border-outline-variant px-4 py-2 text-sm font-semibold text-secondary transition-colors duration-300 ease-standard hover:border-secondary hover:text-on-surface focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-focus motion-reduce:transition-none"
+        >
+          Volver al portafolio
+        </a>
+
+        <header class="space-y-4">
+          <h1 class="text-3xl font-bold tracking-tight text-on-surface sm:text-4xl lg:text-5xl">
+            Sistema de asistencia docente — Colegio Kids Garden
+          </h1>
+          <p class="text-base leading-7 text-on-surface-variant sm:text-lg">
+            Caso de estudio del proyecto de control de asistencia del personal docente.
+          </p>
+        </header>
+
+        <section
+          aria-labelledby="problema"
+          class="space-y-6 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10"
+        >
+          <h2 id="problema" class="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
+            1. Problema
+          </h2>
+          <div class="space-y-4 text-base leading-7 text-on-surface-variant">
+            <p>
+              El Colegio Kids Garden controlaba la asistencia de su personal docente mediante un registro
+              manual en hojas físicas, firmadas en el momento del ingreso. El procedimiento operaba con
+              fallas en cuatro frentes:
+            </p>
+            <ul class="list-disc space-y-2 pl-6">
+              <li>
+                <strong>Precisión horaria.</strong> No había forma de validar la hora exacta de entrada
+                y de salida.
+              </li>
+              <li>
+                <strong>Autenticidad.</strong> Se detectaron casos de suplencia de firmas, donde un
+                docente registraba la asistencia de otro.
+              </li>
+              <li>
+                <strong>Cumplimiento de horarios.</strong> Existían marcajes extemporáneos, realizados
+                mucho después de la hora oficial de ingreso.
+              </li>
+              <li>
+                <strong>Conservación del histórico.</strong> No existía un archivo confiable: los
+                documentos físicos se deterioraban o traspasaban sin control.
+              </li>
+            </ul>
+            <p>
+              El impacto no era únicamente administrativo. Al cierre de cada mes, la conciliación de
+              las horas se llevaba a cabo sobre papel, con el riesgo de que el cálculo de la nómina no
+              coincidiera con lo realmente ocurrido.
+            </p>
+            <p>
+              Ante estas limitantes se planteó el desarrollo de una solución de software orientada a
+              automatizar el marcaje de asistencia docente: registrar con exactitud la fecha y la hora
+              de entrada y salida, auditar en tiempo real el cumplimiento de los horarios asignados y
+              consolidar un registro histórico seguro y accesible para la administración.
+            </p>
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="restricciones"
+          class="space-y-6 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10"
+        >
+          <h2 id="restricciones" class="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
+            2. Restricciones
+          </h2>
+          <div class="space-y-4 text-base leading-7 text-on-surface-variant">
+            <p>
+              El motivo principal fue económico: el colegio no iba a invertir en dispositivos
+              adicionales que requirieran mantenimiento. El sistema debía cumplir con cuatro
+              condiciones:
+            </p>
+            <ul class="list-disc space-y-2 pl-6">
+              <li>
+                <strong>Costo operativo cero</strong> en cuanto a equipos nuevos y licencias.
+              </li>
+              <li>
+                <strong>Uso simple</strong>, porque los docentes no serían usuarios técnicos.
+              </li>
+              <li>
+                <strong>Acceso desde el dispositivo propio del docente</strong>, sin exigir equipos
+                dedicados.
+              </li>
+              <li>
+                <strong>Despliegue sencillo</strong>, siendo el servidor host la única partida de gasto.
+              </li>
+            </ul>
+            <p>
+              Esta restricción condicionó todas las decisiones de arquitectura posteriores.
+            </p>
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="arquitectura"
+          class="space-y-6 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10"
+        >
+          <h2 id="arquitectura" class="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
+            3. Decisiones de arquitectura
+          </h2>
+          <div class="space-y-6 text-base leading-7 text-on-surface-variant">
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">
+                3.1 Aplicación web en lugar de aplicación nativa
+              </h3>
+              <p>
+                Se decidió construirlo como aplicación web para que los docentes accedieran sin
+                descargar una aplicación, sin conectarse a una red interna del instituto y sin que el
+                colegio debiera adquirir dispositivos. El único requisito es que el docente tenga un
+                dispositivo inteligente con cámara, GPS y acceso a internet.
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">3.2 Express.js</h3>
+              <p>
+                Se escogió Express porque era necesario construir el backend y la lógica de negocio de
+                una plataforma web. Node con Express permite ejecutar JavaScript fuera del navegador y
+                probar las APIs de la aplicación web de forma independiente del cliente.
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">3.3 PostgreSQL</h3>
+              <p>
+                Se escogió PostgreSQL por la facilidad de manejo de tablas relacionales y porque ya se
+                había trabajado previamente con este motor de base de datos.
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">3.4 Docker</h3>
+              <p>
+                Se escogió Docker para el desarrollo y el despliegue, de modo que la publicación dentro
+                de un VPS fuera directa y reproducible.
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">3.5 Google OAuth</h3>
+              <p>
+                Se eligió Google OAuth para que los docentes ingresaran con el correo institucional que
+                ya proporciona el instituto. Esto permite anclar cada usuario a su identidad verificada,
+                garantizar que solo los docentes registrados puedan entrar, y que el sistema no
+                gestione credenciales: la responsabilidad de la autenticación queda delegada al
+                proveedor de identidad, lo que reduce la superficie de ataque y elimina la necesidad de
+                almacenar contraseñas.
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">
+                3.6 Marcaje por QR estático con token rotativo
+              </h3>
+              <p>
+                Por decisión de la institución y para evitar comprar dispositivos dedicados, el marcaje
+                se implementó con un QR estático: puede imprimirse en una hoja y colocarse en la entrada
+                de la dirección.
+              </p>
+              <p>
+                La debilidad evidente de un QR fijo es que cualquiera que lo fotografíe podría
+                reutilizarlo. La mitigación no fue reemplazarlo por un QR dinámico, sino rotar el token
+                secreto: cuando se detecta que el código fue comprometido, se genera un QR nuevo y se
+                reimprime. Esto conserva la simplicidad de la infraestructura estática sin quedar
+                indefenso frente a la reutilización por captura de pantalla.
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">3.7 Captura de ubicación</h3>
+              <p>
+                Se registra la ubicación en el momento del marcaje, lo que permite validar que el docente
+                se encuentre dentro del instituto y reduce el riesgo de suplantación o de fraude al
+                marcar asistencia.
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">
+                3.8 Reconocimiento biométrico facial
+              </h3>
+              <p>
+                Esta fase se encuentra en desarrollo. El objetivo es volver el marcaje más preciso y
+                eficiente, y actualmente se trabaja en ella.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="capacidades"
+          class="space-y-6 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10"
+        >
+          <h2 id="capacidades" class="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
+            4. Capacidades del sistema
+          </h2>
+          <div class="space-y-6 text-base leading-7 text-on-surface-variant">
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">
+                4.1 Reportes de asistencia por día, semana y mes
+              </h3>
+              <p>
+                El sistema genera reportes detallados de asistencia en tres granularidades —diaria,
+                semanal y mensual— a partir de los marcajes registrados. La agregación se calcula en el
+                momento de la consulta: no hay tablas precalculadas ni procesos de actualización
+                programados.
+              </p>
+              <p>
+                La decisión se apoyó en el volumen real del problema. Los marcajes de un colegio se
+                cuentan por decenas al día, no por millones, de modo que agregar en la consulta es
+                suficiente en rendimiento y elimina por completo la posibilidad de que un reporte
+                contradiga a los datos. El marcaje registrado permanece como única fuente de verdad y
+                cualquier reporte es una lectura derivada de él, nunca una copia que pueda
+                desincronizarse.
+              </p>
+              <p>
+                El límite de la decisión es el volumen: para una red de colegios con varios años de
+                histórico, la agregación en consulta dejaría de ser viable y obligaría a introducir
+                vistas materializadas o una capa de caché. Se aceptó ese punto de corte porque el caso de
+                uso no lo exige.
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">4.2 Horarios personalizados por docente</h3>
+              <p>
+                Cada docente tiene su propio horario, porque no todos comparten la misma jornada ni los
+                mismos días de trabajo. El sistema permite configurar y administrar estos horarios de
+                forma individual, de modo que la auditoría del cumplimiento se evalúa siempre contra el
+                horario que le corresponde a cada docente y no contra un único horario general para todo
+                el colegio.
+              </p>
+              <p>
+                El modelo es deliberadamente simple: una entrada y una salida por jornada. El horario
+                de cada docente es un par de horas contra el cual se compara cada marcaje del día, y no
+                una colección de bloques independientes. Acotar el problema de esta forma permitió que la
+                validación del cumplimiento fuera una comparación directa en lugar de una máquina de
+                estados.
+              </p>
+              <p>
+                La limitación es conocida: si el colegio llegara a necesitar turnos partidos o varios
+                bloques dentro de una misma jornada, el modelo tendría que cambiar para representar esa
+                colección. Queda documentado como límite del diseño actual y no como funcionalidad
+                pendiente.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="alternativas"
+          class="space-y-6 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10"
+        >
+          <h2 id="alternativas" class="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
+            5. Alternativas descartadas
+          </h2>
+          <ul class="list-disc space-y-3 pl-6 text-base leading-7 text-on-surface-variant">
+            <li>
+              <strong>Aplicación nativa o descargable.</strong> Se descartó desde el principio. El
+              acceso se da desde el navegador del dispositivo inteligente del propio docente, de modo
+              que el colegio no necesita distribuir ni mantener aplicaciones.
+            </li>
+            <li>
+              <strong>Reconocimiento biométrico facial como funcionalidad cerrada.</strong> No se
+              descartó por el riesgo técnico del enfoque, sino que quedó fuera del alcance de la primera
+              versión por falta de conocimiento técnico y de tiempo disponible para implementarlo. La
+              decisión quedó abierta y hoy se trabaja en ella.
+            </li>
+            <li>
+              <strong>QR dinámico.</strong> Se descartó por la falta de dispositivos dedicados para
+              esta única tarea por parte del instituto. Se evaluó porque es la solución directa al
+              problema de reutilización del código, pero requería un dispositivo por punto de marcaje.
+            </li>
+            <li>
+              <strong>Dispositivos dedicados de marcaje.</strong> Se descartaron por falta de
+              presupuesto.
+            </li>
+          </ul>
+        </section>
+
+        <section
+          aria-labelledby="que-salio-mal"
+          class="space-y-6 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10"
+        >
+          <h2 id="que-salio-mal" class="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
+            6. Qué salió mal y qué se rehace
+          </h2>
+          <ul class="list-disc space-y-3 pl-6 text-base leading-7 text-on-surface-variant">
+            <li>
+              <strong>Interfaz de marcaje.</strong> La UI requiere trabajo para que el docente marque de
+              forma más rápida y accesible, con menos pasos y menos carga cognitiva.
+            </li>
+            <li>
+              <strong>Rendimiento de la aplicación.</strong> El manejo de las cargas de los componentes
+              debe mejorarse para que la aplicación responda con mayor eficiencia, especialmente en
+              equipos de recursos limitados.
+            </li>
+          </ul>
+        </section>
+
+        <section
+          aria-labelledby="resultado"
+          class="space-y-6 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10"
+        >
+          <h2 id="resultado" class="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
+            7. Resultado
+          </h2>
+          <div class="space-y-4 text-base leading-7 text-on-surface-variant">
+            <p>
+              El marcaje quedó registrado de forma automática y verificable. El beneficio directo se ve
+              en el cierre de pago mensual: la asistencia registrada pasa a ser la fuente de verdad para
+              calcular lo que corresponde a cada docente, sin depender de la conciliación manual de
+              hojas físicas.
+            </p>
+            <p>
+              Como efectos secundarios, se dispone de un historial completo de marcajes y de un registro
+              de suplantación que audita cada entrada registrada.
+            </p>
+          </div>
+        </section>
+      </article>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

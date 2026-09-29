@@ -24,13 +24,15 @@ function getContactoSection() {
   const main = html.slice(mainStart, mainEnd)
   const sections = [...main.matchAll(/<section\b[^>]*>/gi)].map((match) => match[0])
 
-  assert.ok(sections.length >= 3, 'Contacto must follow Proyectos inside main')
+  assert.ok(sections.length >= 5, 'Contacto must follow Metodo inside main')
   assert.match(sections[0], /\bid=["']inicio["']/i)
-  assert.match(sections[1], /\bid=["']proyectos["']/i)
-  assert.match(sections[2], /\bid=["']contacto["']/i)
-  assert.match(sections[2], /\baria-labelledby=["']contacto-title["']/i)
+  assert.match(sections[1], /\bid=["']habilidades["']/i)
+  assert.match(sections[2], /\bid=["']proyectos["']/i)
+  assert.match(sections[3], /\bid=["']metodo["']/i)
+  assert.match(sections[4], /\bid=["']contacto["']/i)
+  assert.match(sections[4], /\baria-labelledby=["']contacto-title["']/i)
 
-  const sectionStart = html.indexOf(sections[2], mainStart)
+  const sectionStart = html.indexOf(sections[4], mainStart)
   const sectionEnd = html.indexOf('</section>', sectionStart)
 
   assert.notEqual(sectionEnd, -1, 'the Contacto section must be closed')
