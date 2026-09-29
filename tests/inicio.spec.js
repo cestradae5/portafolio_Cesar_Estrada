@@ -12,7 +12,6 @@ const approvedCopy = {
   impact:
     'Construyo soluciones web accesibles, claras y orientadas a resolver problemas reales con una implementación efectiva.',
   cta: 'Contacto',
-  pendingStatus: 'La sección de contacto estará disponible próximamente.',
 }
 
 function getInicioSection() {
@@ -59,21 +58,17 @@ test('Inicio exposes the approved copy in semantic reading order', () => {
   assert.match(inicio, /<h1\b[^>]*\bid=["']inicio-title["'][^>]*>\s*Cesar Armando Estrada Elias\s*<\/h1>/i)
 })
 
-test('Inicio provides the approved temporary Contacto destination', () => {
+test('Inicio hands off to the real Contacto section', () => {
   const inicio = getInicioSection()
-  const contactLink = inicio.match(/<a\b[^>]*\bhref=["']#contacto-pendiente["'][^>]*>[\s\S]*?Contacto[\s\S]*?<\/a>/i)
+  const contactLink = inicio.match(/<a\b[^>]*\bhref=["']#contacto["'][^>]*>[\s\S]*?Contacto[\s\S]*?<\/a>/i)
 
-  assert.ok(contactLink, 'Contacto must link to the pending contact destination')
-  assert.match(contactLink[0], /\baria-describedby=["']contacto-pendiente["']/i)
-  assert.match(
-    inicio,
-    /<p\b[^>]*\bid=["']contacto-pendiente["'][^>]*>\s*La sección de contacto estará disponible próximamente\.\s*<\/p>/i,
-  )
+  assert.ok(contactLink, 'Contacto must link to the real contact section')
+  assert.doesNotMatch(contactLink[0], /\baria-describedby=["']contacto-pendiente["']/i)
 })
 
 test('Inicio keeps its responsive and keyboard-accessible presentation contract', () => {
   const inicio = getInicioSection()
-  const contactLink = inicio.match(/<a\b[^>]*\bhref=["']#contacto-pendiente["'][^>]*>/i)
+  const contactLink = inicio.match(/<a\b[^>]*\bhref=["']#contacto["'][^>]*>/i)
 
   assert.ok(contactLink, 'the Contacto opening tag must be present')
   assert.match(inicio, /\bmax-w-3xl\b/)
@@ -129,13 +124,14 @@ test('Inicio uses the approved dark Batman-inspired palette through theme tokens
   assert.match(html, /text-secondary/)
 })
 
-test('Inicio introduces only the scoped hero and temporary contact handoff', () => {
+test('Inicio keeps a scoped hero with a single primary action', () => {
   const inicio = getInicioSection()
 
   assert.doesNotMatch(html, /<footer\b/i)
   assert.doesNotMatch(html, /<form\b/i)
   assert.doesNotMatch(inicio, /<(?:img|picture|svg)\b/i)
 
-  const links = html.match(/<a\b[^>]*>/gi) ?? []
+  const links = inicio.match(/<a\b[^>]*>/gi) ?? []
   assert.equal(links.length, 1, 'Inicio must expose exactly one primary action')
+  assert.match(links[0], /\bhref=["']#contacto["']/i, 'the hero action must hand off to Contacto')
 })

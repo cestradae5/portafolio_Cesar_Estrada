@@ -48,7 +48,7 @@ function getText(markup) {
 function getCards(proyectos) {
   const cards = proyectos.match(/<article\b[\s\S]*?<\/article>/gi) ?? []
 
-  assert.equal(cards.length, 2, 'Proyectos must render exactly two project cards')
+  assert.equal(cards.length, 1, 'Proyectos must render exactly one project card')
   return cards
 }
 
@@ -56,7 +56,7 @@ function getDisabledActions(card) {
   return [...card.matchAll(/<button\b[^>]*>[\s\S]*?<\/button>/gi)]
 }
 
-test('Proyectos follows Inicio with a labeled section and exactly two semantic cards', () => {
+test('Proyectos follows Inicio with a labeled section and exactly one semantic card', () => {
   const proyectos = getProjectsSection()
   const cards = getCards(proyectos)
 
@@ -64,7 +64,7 @@ test('Proyectos follows Inicio with a labeled section and exactly two semantic c
     proyectos,
     /<h2\b[^>]*\bid=["']proyectos-title["'][\s\S]*?Proyectos[\s\S]*?<\/h2>/i,
   )
-  assert.equal(cards.length, 2)
+  assert.equal(cards.length, 1)
 })
 
 test('the approved project presents only approved Spanish content and keeps its repository private', () => {
@@ -97,28 +97,19 @@ test('the approved project presents only approved Spanish content and keeps its 
   assert.doesNotMatch(projectText, /solicitar acceso|captura|screenshot/i)
 })
 
-test('the placeholder stays minimal and every unavailable action is a disabled native button', () => {
-  const cards = getCards(getProjectsSection())
-  const [, placeholder] = cards
-  const placeholderText = getText(placeholder)
+test('the approved project exposes exactly two unavailable actions as disabled native buttons', () => {
+  const [project] = getCards(getProjectsSection())
+  const actions = getDisabledActions(project)
 
-  assert.equal(placeholderText, 'Próximamente Demo Caso de estudio')
-  assert.doesNotMatch(placeholder, /<a\b|\bhref\s*=|\bon\w+\s*=|<form\b|\btype=["']submit["']/i)
-  assert.match(placeholder, /<img\b[^>]*\bsrc=["']\/images\/projects\/login_kg\.png["']/i)
-  assert.match(placeholder, /<img\b[^>]*\balt=["']Vista previa del próximo proyecto["']/i)
+  assert.doesNotMatch(project, /<form\b|\btype=["']submit["']/i)
+  assert.equal(actions.length, 2, 'the approved project must expose exactly two unavailable actions')
+  assert.ok(actions.some((action) => /\bDemo\b/i.test(action[0])))
+  assert.ok(actions.some((action) => /Caso de estudio/i.test(action[0])))
 
-  for (const card of cards) {
-    const actions = getDisabledActions(card)
-
-    assert.equal(actions.length, 2, 'each card must expose exactly two unavailable actions')
-    assert.ok(actions.some((action) => /\bDemo\b/i.test(action[0])))
-    assert.ok(actions.some((action) => /Caso de estudio/i.test(action[0])))
-
-    for (const action of actions) {
-      assert.match(action[0], /\btype=["']button["']/i)
-      assert.match(action[0], /\bdisabled\b/i)
-      assert.doesNotMatch(action[0], /\bhref\s*=|\bon\w+\s*=/i)
-    }
+  for (const action of actions) {
+    assert.match(action[0], /\btype=["']button["']/i)
+    assert.match(action[0], /\bdisabled\b/i)
+    assert.doesNotMatch(action[0], /\bhref\s*=|\bon\w+\s*=/i)
   }
 })
 
