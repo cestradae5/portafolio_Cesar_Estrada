@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
+  base: '/portafolio_Cesar_Estrada/',
   plugins: [tailwindcss()],
   build: {
     rollupOptions: {

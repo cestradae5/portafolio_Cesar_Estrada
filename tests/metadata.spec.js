@@ -137,3 +137,46 @@ test('the orphan project image is gone', () => {
     assert.doesNotMatch(page.html, /login_kg/i, `${page.name} must not reference the deleted image`)
   }
 })
+
+// Vite rewrites asset references with the configured base, but it never rewrites
+// <a href>. A root-absolute anchor would escape the deployment subdirectory, so
+// every internal link must be relative.
+function getAbsoluteAnchors(markup) {
+  return [...markup.matchAll(/<a\b[^>]*?\bhref\s*=\s*["']\/(?!\/)[^"']*["'][^>]*>/gi)]
+}
+
+test('no page links to an internal route with a root-absolute href', () => {
+  for (const page of pages) {
+    const absoluteAnchors = getAbsoluteAnchors(page.html)
+
+    assert.deepEqual(
+      absoluteAnchors.map((anchor) => anchor[0]),
+      [],
+      `${page.name} must link internally with relative hrefs, not root-absolute ones`,
+    )
+  }
+
+  // The rule targets internal routes only. A legitimate external anchor such as the
+  // Gentle-AI badge, a fragment link, and a known-bad sample all prove the guard is
+  // neither blind nor over-broad.
+  const gentleAiBadge = indexHtml.match(
+    /<a\b[^>]*href=["']https:\/\/github\.com\/Gentleman-Programming\/gentle-ai["'][^>]*>/i,
+  )
+
+  assert.ok(gentleAiBadge, 'the Gentle-AI badge anchor must be present in index.html')
+  assert.deepEqual(
+    getAbsoluteAnchors(gentleAiBadge[0]),
+    [],
+    'an external anchor must never be reported as a root-absolute internal route',
+  )
+  assert.deepEqual(
+    getAbsoluteAnchors('<a href="#contacto">Contacto</a>'),
+    [],
+    'a fragment anchor must never be reported as a root-absolute internal route',
+  )
+  assert.equal(
+    getAbsoluteAnchors('<a href="/caso-de-estudio.html">Caso de estudio</a>').length,
+    1,
+    'the guard must still detect a root-absolute internal route',
+  )
+})
