@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import test from 'node:test'
 
 const html = readFileSync(new URL('../caso-de-estudio.html', import.meta.url), 'utf8')
@@ -12,9 +13,26 @@ const approvedSections = [
   '2. Restricciones',
   '3. Decisiones de arquitectura',
   '4. Capacidades del sistema',
-  '5. Alternativas descartadas',
-  '6. Qué salió mal y qué se rehace',
-  '7. Resultado',
+  '5. Recorrido por el sistema',
+  '6. Alternativas descartadas',
+  '7. Qué salió mal y qué se rehace',
+  '8. Resultado',
+]
+
+// Screenshots of the running system, in the order the walkthrough presents them.
+// Intrinsic sizes are asserted so a wrong width/height pair cannot reintroduce layout shift.
+const walkthroughScreenshots = [
+  { file: '01-login.png', width: 1920, height: 875 },
+  { file: '02-dashboard.png', width: 1920, height: 873 },
+  { file: '03-escaneo-qr.png', width: 1920, height: 871 },
+  { file: '04-calendario.png', width: 1920, height: 871 },
+  { file: '05-admin-qr.png', width: 1920, height: 876 },
+  { file: '06-hoja-hora.png', width: 1920, height: 871 },
+  { file: '07-horarios.png', width: 1920, height: 871 },
+  { file: '08-config-gps.png', width: 1920, height: 870 },
+  { file: '09-users.png', width: 1920, height: 871 },
+  { file: '10-bitacora.png', width: 1920, height: 874 },
+  { file: '11-config-marcj.png', width: 1920, height: 873 },
 ]
 
 function getText(markup) {
@@ -67,7 +85,10 @@ test('the case study page is a standalone Spanish document linked from the portf
   assert.doesNotMatch(backLinks[0][0], /\btarget\s*=/i)
   assert.doesNotMatch(backLinks[0][0], /\bhref\s*=\s*["'](?:https?:)?\/\//i)
 
-  assert.doesNotMatch(main, /<form\b|<input\b|<footer\b|<img\b|<svg\b/i)
+  // The page still takes no form input and draws no inline vector art. Images are no
+  // longer banned here: the walkthrough section documents the real screens, and its
+  // dedicated test below enforces alt text, intrinsic size and existence on disk.
+  assert.doesNotMatch(main, /<form\b|<input\b|<footer\b|<svg\b/i)
   assert.doesNotMatch(main, /\bhref\s*=\s*["']https?:\/\//i)
 
   assert.match(
@@ -79,7 +100,12 @@ test('the case study page is a standalone Spanish document linked from the portf
 test('the case study keeps the approved section order and headings', () => {
   const sections = getLabelledSections()
 
-  assert.equal(sections.length, 7, 'the case study must expose exactly seven labelled sections')
+  assert.equal(sections.length, 8, 'the case study must expose exactly eight labelled sections')
+  assert.deepEqual(
+    sections.map((section) => section[1]),
+    ['problema', 'restricciones', 'arquitectura', 'capacidades', 'recorrido-title', 'alternativas', 'que-salio-mal', 'resultado'],
+    'the walkthrough must sit between the capabilities and the rejected alternatives',
+  )
 
   sections.forEach((section, index) => {
     const id = section[1]
@@ -91,6 +117,106 @@ test('the case study keeps the approved section order and headings', () => {
     assert.notEqual(heading, null, `section ${id} must carry its own h2`)
     assert.equal(getText(heading[0]), approvedSections[index])
   })
+})
+
+function getAttributes(tag) {
+  const attributes = {}
+
+  for (const attribute of tag.matchAll(/([a-zA-Z-]+)\s*=\s*["']([^"']*)["']/g)) {
+    attributes[attribute[1].toLowerCase()] = attribute[2]
+  }
+
+  return attributes
+}
+
+test('the walkthrough section embeds the video and the real system screenshots', () => {
+  const walkthrough = getSectionById('recorrido-title')
+  const iframe = walkthrough.match(/<iframe\b[^>]*>/i)
+
+  assert.notEqual(iframe, null, 'the walkthrough must embed the walkthrough video')
+  const iframeAttributes = getAttributes(iframe[0])
+
+  assert.equal(
+    iframeAttributes.src,
+    'https://www.youtube-nocookie.com/embed/m7SSIb143Vk',
+    'the video must come from the privacy-preserving nocookie host',
+  )
+  assert.ok(
+    (iframeAttributes.title ?? '').trim().length > 0,
+    'the embedded video must carry a non-empty title for assistive technology',
+  )
+  assert.equal(iframeAttributes.loading, 'lazy', 'the video must load lazily')
+  assert.match(iframe[0], /\ballowfullscreen\b/i, 'the video must be playable fullscreen')
+  assert.match(iframe[0], /\baspect-video\b/, 'the video must be wrapped in a responsive aspect ratio')
+
+  const images = [...walkthrough.matchAll(/<img\b[^>]*>/gi)]
+  const sources = images.map((image) => getAttributes(image[0]).src)
+
+  assert.equal(
+    images.length,
+    walkthroughScreenshots.length,
+    'the walkthrough must show every documented screenshot',
+  )
+  assert.equal(new Set(sources).size, sources.length, 'the walkthrough must not repeat a screenshot')
+
+  for (const [index, screenshot] of walkthroughScreenshots.entries()) {
+    const attributes = getAttributes(images[index][0])
+
+    assert.equal(
+      attributes.src,
+      `/images/${screenshot.file}`,
+      `the walkthrough must show ${screenshot.file} in the approved order`,
+    )
+    assert.equal(
+      existsSync(fileURLToPath(new URL(`../public/images/${screenshot.file}`, import.meta.url))),
+      true,
+      `${screenshot.file} must exist in public/images`,
+    )
+    assert.ok((attributes.alt ?? '').trim().length > 0, `${screenshot.file} must carry a non-empty alt`)
+    assert.equal(
+      Number(attributes.width),
+      screenshot.width,
+      `${screenshot.file} must declare its intrinsic width`,
+    )
+    assert.equal(
+      Number(attributes.height),
+      screenshot.height,
+      `${screenshot.file} must declare its intrinsic height`,
+    )
+    assert.equal(attributes.loading, 'lazy', `${screenshot.file} must load lazily`)
+    assert.equal(attributes.decoding, 'async', `${screenshot.file} must decode asynchronously`)
+    assert.match(images[index][0], /\bw-full\b/, `${screenshot.file} must not overflow its column`)
+  }
+
+  const gridCells = walkthrough.match(/\bmin-w-0\b/g) ?? []
+  assert.equal(
+    gridCells.length,
+    images.length,
+    'every screenshot cell must carry min-w-0 so it can shrink below its content width',
+  )
+  assert.match(
+    getText(walkthrough),
+    /pantallas reales del sistema/i,
+    'the walkthrough must caption the gallery as real system screens',
+  )
+  assert.doesNotMatch(
+    walkthrough,
+    /biom[eé]tric|reconocimiento\s+facial|facial/i,
+    'the walkthrough must not reference facial recognition or biometrics',
+  )
+
+  const externalHosts = [
+    ...new Set(
+      [...html.matchAll(/\b(?:src|href)\s*=\s*["'](https?:\/\/[^"']+)["']/gi)].map((match) =>
+        new URL(match[1]).host,
+      ),
+    ),
+  ]
+  assert.deepEqual(
+    externalHosts,
+    ['www.youtube-nocookie.com'],
+    'the embedded video must remain the only external resource on the page',
+  )
 })
 
 test('the case study documents the approved technical claims', () => {

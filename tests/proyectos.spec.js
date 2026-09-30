@@ -53,7 +53,7 @@ function getCards(proyectos) {
   return cards
 }
 
-function getDisabledActions(card) {
+function getButtons(card) {
   return [...card.matchAll(/<button\b[^>]*>[\s\S]*?<\/button>/gi)]
 }
 
@@ -104,22 +104,29 @@ test('the approved project presents only approved Spanish content and keeps its 
   assert.doesNotMatch(projectText, /solicitar acceso|captura|screenshot/i)
 })
 
-test('the approved project keeps Demo disabled and links the case study', () => {
+test('the approved project exposes no dead action and links the case study', () => {
   const [project] = getCards(getProjectsSection())
-  const actions = getDisabledActions(project)
+  const buttons = getButtons(project)
   const caseStudyLinks = getCaseStudyLink(project)
 
   assert.doesNotMatch(project, /<form\b|\btype=["']submit["']/i)
-  assert.equal(actions.length, 1, 'the approved project must expose exactly one disabled native button')
-  assert.match(actions[0][0], /\bDemo\b/i)
-  assert.match(actions[0][0], /\btype=["']button["']/i)
-  assert.match(actions[0][0], /\bdisabled\b/i)
-  assert.doesNotMatch(actions[0][0], /\bhref\s*=|\bon\w+\s*=/i)
-
+  // The permanently disabled "Demo" button was removed: a control that can never be
+  // activated reads as a broken link on a portfolio. The card now exposes a single
+  // real destination instead of a mixture of live and dead actions.
+  assert.equal(buttons.length, 0, 'the approved project must not expose any native button')
   assert.equal(caseStudyLinks.length, 1, 'the approved project must expose exactly one case study link')
   assert.match(caseStudyLinks[0][0], /Caso de estudio/i)
   assert.match(caseStudyLinks[0][0], /\bhref=["'][^"']*caso-de-estudio\.html["']/i)
   assert.doesNotMatch(caseStudyLinks[0][0], /\bdisabled\b|\bon\w+\s*=/i)
+
+  // No anchor other than the case study, and no inline event handler anywhere in the card.
+  const anchors = [...project.matchAll(/<a\b[^>]*\bhref\s*=\s*["']([^"']*)["'][^>]*>/gi)]
+  assert.equal(anchors.length, 1, 'the card must expose exactly one href')
+  assert.ok(
+    anchors.every((anchor) => /caso-de-estudio\.html$/i.test(anchor[1])),
+    'the only href in the card must point at the case study',
+  )
+  assert.doesNotMatch(project, /\son[a-z]+\s*=/i, 'the card must not use inline event handlers')
 })
 
 test('Proyectos uses token-backed cards stacked in a single column and wraps essential copy', () => {
