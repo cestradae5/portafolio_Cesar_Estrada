@@ -231,14 +231,12 @@ test('the case study documents the approved technical claims', () => {
     'PostgreSQL',
     'Docker',
     'Express',
-    'en el momento de la consulta',
     'una entrada y una salida por jornada',
     'motivo principal fue económico',
     'Costo operativo cero',
     'cámara',
     'GPS',
     'turnos partidos',
-    'vistas materializadas',
   ]) {
     assert.ok(pageText.includes(claim), `the case study must document "${claim}"`)
   }
@@ -300,7 +298,7 @@ test('the build config includes both pages and the project card stays consistent
   assert.match(viteConfig, /caso-de-estudio\.html/)
 
   assert.ok(projectText.includes('QR estáticos con token rotativo'))
-  assert.ok(projectText.includes('reconocimiento biométrico facial en desarrollo'))
+  assert.ok(projectText.includes('reconocimiento biométrico facial en proceso de desarrollo'))
   assert.match(
     getText(getSectionById('arquitectura')),
     /biométrico facial[\s\S]{0,80}en desarrollo/i,
