@@ -231,41 +231,22 @@
                 4.1 Reportes de asistencia por día, semana y mes
               </h3>
               <p>
-                El sistema genera reportes detallados de asistencia en tres granularidades —diaria,
-                semanal y mensual— a partir de los marcajes registrados. La agregación se calcula en el
-                momento de la consulta: no hay tablas precalculadas ni procesos de actualización
-                programados.
-              </p>
-              <p>
-                La decisión se apoyó en el volumen real del problema. Los marcajes de un colegio se
-                cuentan por decenas al día, no por millones, de modo que agregar en la consulta es
-                suficiente en rendimiento y elimina por completo la posibilidad de que un reporte
-                contradiga a los datos. El marcaje registrado permanece como única fuente de verdad y
+                El marcaje registrado permanece como única fuente de verdad y
                 cualquier reporte es una lectura derivada de él, nunca una copia que pueda
                 desincronizarse.
-              </p>
-              <p>
-                El límite de la decisión es el volumen: para una red de colegios con varios años de
-                histórico, la agregación en consulta dejaría de ser viable y obligaría a introducir
-                vistas materializadas o una capa de caché. Se aceptó ese punto de corte porque el caso de
-                uso no lo exige.
               </p>
             </div>
 
             <div class="space-y-3">
               <h3 class="text-lg font-semibold text-secondary">4.2 Horarios personalizados por docente</h3>
               <p>
-                Cada docente tiene su propio horario, porque no todos comparten la misma jornada ni los
-                mismos días de trabajo. El sistema permite configurar y administrar estos horarios de
-                forma individual, de modo que la auditoría del cumplimiento se evalúa siempre contra el
-                horario que le corresponde a cada docente y no contra un único horario general para todo
-                el colegio.
+                Los horarios de cada docente se pueden configurar, un horario puede servir para varios docentes y si se necesita un horario específico para un docente se puede crear.
               </p>
               <p>
                 El modelo es deliberadamente simple: una entrada y una salida por jornada. El horario
                 de cada docente es un par de horas contra el cual se compara cada marcaje del día, y no
                 una colección de bloques independientes. Acotar el problema de esta forma permitió que la
-                validación del cumplimiento fuera una comparación directa en lugar de una máquina de
+                validación del cumplimiento fuera una comparación directa en lugar de una búsqueda entre varios
                 estados.
               </p>
               <p>
