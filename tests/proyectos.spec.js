@@ -8,7 +8,7 @@ const css = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8')
 const approvedProject = {
   title: 'Sistema de asistencia Escolar',
   description:
-    'Solución integral para gestionar y controlar la asistencia del personal docente mediante códigos QR estáticos con token rotativo, con reconocimiento biométrico facial en desarrollo. Permite generar reportes detallados por día, semana y mes, y administrar horarios personalizados por usuario.',
+    'Solución integral para gestionar y controlar la asistencia del personal docente mediante códigos QR estáticos con token rotativo, con reconocimiento biométrico facial en proceso de desarrollo. Permite generar reportes detallados por los días laborales del docente, y administrar horarios personalizados para los docentes.',
   stackLayers: {
     Frontend: ['React.js', 'Vite', 'Tailwind CSS', 'Lucide Icons'],
     Backend: ['Express.js'],
