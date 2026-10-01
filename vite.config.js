@@ -10,6 +10,7 @@ export default defineConfig({
       input: {
         main: fileURLToPath(new URL('./index.html', import.meta.url)),
         caso: fileURLToPath(new URL('./caso-de-estudio.html', import.meta.url)),
+        casoAmsa: fileURLToPath(new URL('./caso-de-estudio-amsa.html', import.meta.url)),
       },
     },
   },

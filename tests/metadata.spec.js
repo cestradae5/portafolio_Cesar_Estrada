@@ -5,14 +5,20 @@ import test from 'node:test'
 
 const indexHtml = readFileSync(new URL('../index.html', import.meta.url), 'utf8')
 const casoHtml = readFileSync(new URL('../caso-de-estudio.html', import.meta.url), 'utf8')
+const casoAmsaHtml = readFileSync(new URL('../caso-de-estudio-amsa.html', import.meta.url), 'utf8')
 const favicon = readFileSync(new URL('../public/favicon.svg', import.meta.url), 'utf8')
 
 const pages = [
   { name: 'index.html', html: indexHtml },
   { name: 'caso-de-estudio.html', html: casoHtml },
+  { name: 'caso-de-estudio-amsa.html', html: casoAmsaHtml },
 ]
 
 const orphanImagePath = fileURLToPath(new URL('../public/images/projects/login_kg.png', import.meta.url))
+// hero.png was the AMSA card hero until it was replaced by 19-bitacora.png. It was a 598 KB
+// near-duplicate of 01-login.png and Vite copies public/ into dist/ regardless of markup references,
+// so leaving it on disk shipped it for nothing. Same policy as login_kg.png above.
+const orphanAmsaHeroPath = fileURLToPath(new URL('../public/images/amsa/hero.png', import.meta.url))
 
 function getHead(markup) {
   const headStart = markup.indexOf('<head')
@@ -72,8 +78,22 @@ test('both pages declare the social preview contract', () => {
     assert.match(icon, /\bhref=["']\/favicon\.svg["']/i, `${page.name} icon href`)
   }
 
-  assert.notEqual(titles[0], titles[1], 'each page must present its own og:title')
-  assert.notEqual(descriptions[0], descriptions[1], 'each page must present its own og:description')
+  // Each page must present its own social copy. The check is pairwise so a third
+  // page cannot collide with the first two and still pass.
+  const distinct = (values, label) => {
+    for (let i = 0; i < values.length; i += 1) {
+      for (let j = i + 1; j < values.length; j += 1) {
+        assert.notEqual(
+          values[i],
+          values[j],
+          `${pages[i].name} and ${pages[j].name} must present their own ${label}`,
+        )
+      }
+    }
+  }
+
+  distinct(titles, 'og:title')
+  distinct(descriptions, 'og:description')
 })
 
 test('no page declares an undecided production domain', () => {
@@ -132,6 +152,11 @@ test('the favicon is a local token-based SVG', () => {
 
 test('the orphan project image is gone', () => {
   assert.equal(existsSync(orphanImagePath), false, 'the unreferenced project image must be deleted')
+  assert.equal(
+    existsSync(orphanAmsaHeroPath),
+    false,
+    'the superseded AMSA hero must be deleted, not just unlinked',
+  )
 
   for (const page of pages) {
     assert.doesNotMatch(page.html, /login_kg/i, `${page.name} must not reference the deleted image`)

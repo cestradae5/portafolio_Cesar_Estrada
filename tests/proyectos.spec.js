@@ -17,7 +17,30 @@ const approvedProject = {
   },
   repositoryStatus: 'Repositorio privado',
   imageSrc: '/images/projects/dashboard_kg.png',
+  imageAlt: 'Vista previa del Sistema de asistencia Escolar',
+  caseStudyHref: 'caso-de-estudio.html',
 }
+
+const approvedProjectAmsa = {
+  title: 'Sistema de gestión de almacén AMSA',
+  description:
+    'Sistema web de gestión de almacén que reemplazó una aplicación de escritorio en Microsoft Access, liberando el acceso que dependía de llaves atadas al equipo original. Centraliza el inventario, las entradas y salidas de insumos y la tarjeta Kardex en una sola plataforma, con formulario 1-H en PDF, búsqueda semántica sobre vectores en PostgreSQL y bitácora de auditoría de solo agregado.',
+  stackLayers: {
+    Frontend: ['Django Templates', 'Tailwind CSS (CDN)', 'Alpine.js (CDN)'],
+    Backend: ['Python', 'Django', 'ReportLab', 'Redis', 'Sentry', 'sentence-transformers'],
+    'Base de Datos': ['PostgreSQL con pgvector', 'volúmenes persistentes'],
+    Seguridad: ['Nginx como reverse proxy', 'CSRF', 'RBAC', 'backups con rclone'],
+  },
+  repositoryStatus: 'Repositorio privado',
+  imageSrc: '/images/amsa/19-bitacora.png',
+  imageAlt: 'Bitácora de auditoría del Sistema de gestión de almacén AMSA con los registros de actividad del sistema',
+  caseStudyHref: 'caso-de-estudio-amsa.html',
+}
+
+// Both approved projects, in the order they render inside #proyectos. The card
+// contract is per-project, so every assertion below iterates this list instead
+// of reading cards[0] directly.
+const approvedProjects = [approvedProject, approvedProjectAmsa]
 
 function getProjectsSection() {
   const mainStart = html.indexOf('<main')
@@ -49,7 +72,7 @@ function getText(markup) {
 function getCards(proyectos) {
   const cards = proyectos.match(/<article\b[\s\S]*?<\/article>/gi) ?? []
 
-  assert.equal(cards.length, 1, 'Proyectos must render exactly one project card')
+  assert.equal(cards.length, 2, 'Proyectos must render exactly two project cards')
   return cards
 }
 
@@ -61,7 +84,11 @@ function getCaseStudyLink(card) {
   return [...card.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/gi)]
 }
 
-test('Proyectos follows Inicio with a labeled section and exactly one semantic card', () => {
+function getAnchors(card) {
+  return [...card.matchAll(/<a\b[^>]*\bhref\s*=\s*["']([^"']*)["'][^>]*>/gi)]
+}
+
+test('Proyectos follows Inicio with a labeled section and exactly two semantic cards', () => {
   const proyectos = getProjectsSection()
   const cards = getCards(proyectos)
 
@@ -69,64 +96,105 @@ test('Proyectos follows Inicio with a labeled section and exactly one semantic c
     proyectos,
     /<h2\b[^>]*\bid=["']proyectos-title["'][\s\S]*?Proyectos[\s\S]*?<\/h2>/i,
   )
-  assert.equal(cards.length, 1)
+  assert.equal(cards.length, 2)
 })
 
-test('the approved project presents only approved Spanish content and keeps its repository private', () => {
-  const [project] = getCards(getProjectsSection())
-  const projectText = getText(project)
+test('the approved projects present only approved Spanish content and keep their repository private', () => {
+  const cards = getCards(getProjectsSection())
 
-  assert.ok(projectText.includes(approvedProject.title), 'the approved project title must be present')
-  assert.ok(
-    projectText.includes(approvedProject.description),
-    'the approved Spanish project description must be present',
-  )
-  for (const [layer, technologies] of Object.entries(approvedProject.stackLayers)) {
-    assert.ok(projectText.includes(layer), `the stack must include the ${layer} layer`)
+  cards.forEach((project, index) => {
+    const approved = approvedProjects[index]
+    const label = approved.title
+    const projectText = getText(project)
 
-    for (const technology of technologies) {
-      assert.ok(
-        projectText.includes(technology),
-        `${technology} must be listed under the project stack`,
-      )
+    assert.ok(projectText.includes(approved.title), `${label}: the approved project title must be present`)
+    assert.ok(
+      projectText.includes(approved.description),
+      `${label}: the approved Spanish project description must be present`,
+    )
+    for (const [layer, technologies] of Object.entries(approved.stackLayers)) {
+      assert.ok(projectText.includes(layer), `${label}: the stack must include the ${layer} layer`)
+
+      for (const technology of technologies) {
+        assert.ok(
+          projectText.includes(technology),
+          `${label}: ${technology} must be listed under the project stack`,
+        )
+      }
     }
-  }
-  assert.ok(
-    projectText.includes(approvedProject.repositoryStatus),
-    'the private repository status must be plain text',
-  )
-  assert.doesNotMatch(project, /https?:\/\//i)
-  assert.doesNotMatch(project, /github\.com/i)
-  assert.doesNotMatch(project, /\btarget\s*=/i)
-  assert.match(project, /<img\b[^>]*\bsrc=["']\/images\/projects\/dashboard_kg\.png["']/i)
-  assert.match(project, /<img\b[^>]*\balt=["']Vista previa del Sistema de asistencia Escolar["']/i)
-  assert.doesNotMatch(project, /<(?:picture|video|source)\b/i)
-  assert.doesNotMatch(projectText, /solicitar acceso|captura|screenshot/i)
+    assert.ok(
+      projectText.includes(approved.repositoryStatus),
+      `${label}: the private repository status must be plain text`,
+    )
+    assert.doesNotMatch(project, /https?:\/\//i)
+    assert.doesNotMatch(project, /github\.com/i)
+    assert.doesNotMatch(project, /\btarget\s*=/i)
+    assert.match(
+      project,
+      new RegExp(`<img\\b[^>]*\\bsrc=["']${approved.imageSrc.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}["']`, 'i'),
+      `${label}: the card must render its approved hero image`,
+    )
+    assert.match(
+      project,
+      new RegExp(`<img\\b[^>]*\\balt=["']${approved.imageAlt.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}["']`, 'i'),
+      `${label}: the card hero must carry its approved alt text`,
+    )
+    assert.doesNotMatch(project, /<(?:picture|video|source)\b/i)
+    assert.doesNotMatch(projectText, /solicitar acceso|captura|screenshot/i)
+  })
+
+  // Card one is guarded by name as well, so renaming the project or swapping the hero
+  // cannot pass by editing only the approved-copy constant above.
+  assert.match(cards[0], /<img\b[^>]*\bsrc=["']\/images\/projects\/dashboard_kg\.png["']/i)
+  assert.match(cards[0], /<img\b[^>]*\balt=["']Vista previa del Sistema de asistencia Escolar["']/i)
 })
 
-test('the approved project exposes no dead action and links the case study', () => {
-  const [project] = getCards(getProjectsSection())
-  const buttons = getButtons(project)
-  const caseStudyLinks = getCaseStudyLink(project)
+test('the approved projects expose no dead action and each links its own case study', () => {
+  const cards = getCards(getProjectsSection())
 
-  assert.doesNotMatch(project, /<form\b|\btype=["']submit["']/i)
-  // The permanently disabled "Demo" button was removed: a control that can never be
-  // activated reads as a broken link on a portfolio. The card now exposes a single
-  // real destination instead of a mixture of live and dead actions.
-  assert.equal(buttons.length, 0, 'the approved project must not expose any native button')
-  assert.equal(caseStudyLinks.length, 1, 'the approved project must expose exactly one case study link')
-  assert.match(caseStudyLinks[0][0], /Caso de estudio/i)
-  assert.match(caseStudyLinks[0][0], /\bhref=["'][^"']*caso-de-estudio\.html["']/i)
-  assert.doesNotMatch(caseStudyLinks[0][0], /\bdisabled\b|\bon\w+\s*=/i)
+  cards.forEach((project, index) => {
+    const approved = approvedProjects[index]
+    const label = approved.title
+    const buttons = getButtons(project)
+    const caseStudyLinks = getCaseStudyLink(project)
 
-  // No anchor other than the case study, and no inline event handler anywhere in the card.
-  const anchors = [...project.matchAll(/<a\b[^>]*\bhref\s*=\s*["']([^"']*)["'][^>]*>/gi)]
-  assert.equal(anchors.length, 1, 'the card must expose exactly one href')
-  assert.ok(
-    anchors.every((anchor) => /caso-de-estudio\.html$/i.test(anchor[1])),
-    'the only href in the card must point at the case study',
+    assert.doesNotMatch(project, /<form\b|\btype=["']submit["']/i)
+    // The permanently disabled "Demo" button was removed: a control that can never be
+    // activated reads as a broken link on a portfolio. The card now exposes a single
+    // real destination instead of a mixture of live and dead actions.
+    assert.equal(buttons.length, 0, `${label}: the approved project must not expose any native button`)
+    assert.equal(
+      caseStudyLinks.length,
+      1,
+      `${label}: the approved project must expose exactly one case study link`,
+    )
+    assert.match(caseStudyLinks[0][0], /Caso de estudio/i)
+    assert.doesNotMatch(caseStudyLinks[0][0], /\bdisabled\b|\bon\w+\s*=/i)
+
+    // No anchor other than the case study, and no inline event handler anywhere in the card.
+    // Each card points at its own page, so the destination is asserted per project rather
+    // than globally: a single fixed pattern could not tell the two case studies apart.
+    const anchors = getAnchors(project)
+
+    assert.equal(anchors.length, 1, `${label}: the card must expose exactly one href`)
+    assert.equal(
+      anchors[0][1],
+      approved.caseStudyHref,
+      `${label}: the only href in the card must point at its own case study`,
+    )
+    assert.ok(
+      anchors.every((anchor) => anchor[1].toLowerCase().endsWith(approved.caseStudyHref.toLowerCase())),
+      `${label}: the only href in the card must point at the case study`,
+    )
+    assert.doesNotMatch(project, /\son[a-z]+\s*=/i, `${label}: the card must not use inline event handlers`)
+  })
+
+  // The two case studies are distinct documents: neither card may borrow the other's page.
+  assert.notEqual(
+    approvedProjects[0].caseStudyHref,
+    approvedProjects[1].caseStudyHref,
+    'each project must link to its own case study page',
   )
-  assert.doesNotMatch(project, /\son[a-z]+\s*=/i, 'the card must not use inline event handlers')
 })
 
 test('Proyectos uses token-backed cards stacked in a single column and wraps essential copy', () => {
@@ -138,7 +206,10 @@ test('Proyectos uses token-backed cards stacked in a single column and wraps ess
   assert.doesNotMatch(proyectos, /\blg:grid-cols-2\b/)
   assert.match(proyectos, /\bgap-6\b/)
   assert.ok(cards.every((card) => /\bmin-w-0\b/.test(card)))
-  assert.match(cards[0], /\bbreak-words\b/)
+  assert.ok(
+    cards.every((card) => /\bbreak-words\b/.test(card)),
+    'every card must wrap its description so long words cannot break the layout',
+  )
   assert.ok(cards.every((card) => /\brounded-project-card\b/.test(card)))
   assert.match(css, /--md-sys-shape-corner-medium:/)
   assert.match(css, /--radius-project-card:\s*var\(--md-sys-shape-corner-medium\)/)
