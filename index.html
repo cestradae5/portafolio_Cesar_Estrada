@@ -317,66 +317,142 @@
 
           <div class="space-y-6 text-base leading-7 text-on-surface-variant sm:text-lg">
             <p>
-              No desarrollo productos de inteligencia artificial. Uso IA y agentes como herramienta
-              de desarrollo: la planificación, la implementación y la verificación se orquestan con
-              agentes especializados que trabajan con contexto propio y devuelven un resultado que
-              el orquestador valida antes de aceptarlo.
+              No desarrollo productos de inteligencia artificial. Uso la IA y los agentes como
+              herramienta de desarrollo: el trabajo se reparte entre agentes especializados, cada
+              uno con su propio contexto, y ninguno da algo por terminado hasta que otro lo revisa.
             </p>
             <p>
-              El trabajo se sigue una metodología de desarrollo guiado por especificación. El plan no
-              vive dentro de la conversación: se escribe en artefactos persistentes que sobreviven
-              al cierre de la sesión, de modo que retomar el trabajo no exige reconstruir el contexto
-              desde cero.
+              Ese método tiene dos formas de organizarse y las dos vienen en Gentle-AI. Se elige
+              según qué tan abierto esté el problema: si el trabajo ya está claro y son pocos
+              pasos, se avanza de forma directa; si el problema es grande o todavía tiene
+              demasiadas incógnitas, se escribe primero el plan y después se ejecuta contra ese
+              plan.
             </p>
           </div>
 
-          <ol class="space-y-4">
-            <li
-              class="rounded-project-card border border-outline-variant bg-surface-container p-6 sm:p-8"
-            >
-              <h3 class="text-base font-semibold text-secondary">Especificación.</h3>
-              <p class="mt-2 text-sm leading-6 text-on-surface-variant">
-                Antes de escribir código se produce una cadena de artefactos: exploración,
-                propuesta, especificación, diseño y tareas. Cada uno se escribe y se guarda antes
-                de pasar al siguiente, y las decisiones quedan registradas con su justificación.
-              </p>
-            </li>
-            <li
-              class="rounded-project-card border border-outline-variant bg-surface-container p-6 sm:p-8"
-            >
-              <h3 class="text-base font-semibold text-secondary">Descomposición.</h3>
-              <p class="mt-2 text-sm leading-6 text-on-surface-variant">
-                La especificación y el diseño se traducen en tareas con dependencias explícitas
-                entre ellas. La implementación avanza por lotes y solo arranca la tarea cuyas
-                dependencias ya están resueltas, no todo el bloque de una vez.
-              </p>
-            </li>
-            <li
-              class="rounded-project-card border border-outline-variant bg-surface-container p-6 sm:p-8"
-            >
-              <h3 class="text-base font-semibold text-secondary">Validación por fase.</h3>
-              <p class="mt-2 text-sm leading-6 text-on-surface-variant">
-                El orquestador audita cada resultado antes de lanzar la fase siguiente: comprueba
-                que la fase cumplió su contrato, que el artefacto que dice haber escrito existe y se
-                puede leer, que las rutas que cita resuelven y que no se desvió de sus entradas. Una
-                fase que no supera la auditoría no avanza la cadena.
-              </p>
-            </li>
-            <li
-              class="rounded-project-card border border-outline-variant bg-surface-container p-6 sm:p-8"
-            >
-              <h3 class="text-base font-semibold text-secondary">Revisión graduada por riesgo.</h3>
-              <p class="mt-2 text-sm leading-6 text-on-surface-variant">
-                No todo se revisa igual. Una evaluación de riesgo clasifica cada cambio y ese nivel
-                determina qué recibe: verificación estructural para contenido pasivo, pruebas de
-                contrato para el trabajo normal y una revisión acotada sobre el candidato congelado
-                para el resto. La decisión de revisarlo siempre es de la persona.
-              </p>
-            </li>
-          </ol>
+          <div class="space-y-6">
+            <h3 class="text-lg font-semibold text-secondary">ODD: el flujo de todos los días</h3>
+            <p class="mt-2 text-base leading-7 text-on-surface-variant">
+              Desarrollo dirigido de forma orgánica. Es la forma por defecto y cubre el trabajo
+              corriente: corregir algo, agregar una sección, ajustar un detalle. No genera
+              burocracia porque el trabajo es pequeño.
+            </p>
+            <ol class="mt-4 space-y-4">
+              <li
+                class="rounded-project-card border border-outline-variant bg-surface-container p-6 sm:p-8"
+              >
+                <h4 class="text-base font-semibold text-secondary">
+                  Primero se confirma que el cambio está pedido.
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-on-surface-variant">
+                  Nada se modifica por iniciativa propia. Si la petición es una consulta, una
+                  comparación o una revisión, se responde y no se escribe nada. Solo cuando el
+                  cambio está autorizado se toca un archivo.
+                </p>
+              </li>
+              <li
+                class="rounded-project-card border border-outline-variant bg-surface-container p-6 sm:p-8"
+              >
+                <h4 class="text-base font-semibold text-secondary">
+                  Después se lee lo que ya existe.
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-on-surface-variant">
+                  Antes de proponer nada se revisa el código y los requisitos. Entender el terreno
+                  es lo que evita cambiar lo que no hay que cambiar.
+                </p>
+              </li>
+              <li
+                class="rounded-project-card border border-outline-variant bg-surface-container p-6 sm:p-8"
+              >
+                <h4 class="text-base font-semibold text-secondary">Lo simple no deja documentos.</h4>
+                <p class="mt-2 text-sm leading-6 text-on-surface-variant">
+                  Si el trabajo cabe en un par de pasos, se hace y ya. El documento de trabajo se
+                  escribe solo cuando hay varios pasos coordinados o algo que valga la pena
+                  recuperar más adelante.
+                </p>
+              </li>
+              <li
+                class="rounded-project-card border border-outline-variant bg-surface-container p-6 sm:p-8"
+              >
+                <h4 class="text-base font-semibold text-secondary">Cada tarea se cierra sola.</h4>
+                <p class="mt-2 text-sm leading-6 text-on-surface-variant">
+                  Una tarea no está terminada porque el agente dijo que terminó, sino porque se
+                  verificó, se documentó y quedó registrada en un commit. Solo entonces se pasa a
+                  la siguiente.
+                </p>
+              </li>
+            </ol>
+          </div>
+
+          <div class="space-y-6">
+            <h3 class="text-lg font-semibold text-secondary">
+              SDD: cuando el problema exige un plan escrito
+            </h3>
+            <p class="mt-2 text-base leading-7 text-on-surface-variant">
+              Se llama desarrollo guiado por especificación. Entra solo cuando el trabajo es lo
+              bastante grande o abierto como para que escribir el plan antes de codificar valga la
+              pena.
+            </p>
+            <ol class="mt-4 space-y-4">
+              <li
+                class="rounded-project-card border border-outline-variant bg-surface-container p-6 sm:p-8"
+              >
+                <h4 class="text-base font-semibold text-secondary">
+                  Primero se escribe, no se programa.
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-on-surface-variant">
+                  Antes de que exista una línea de código, el trabajo se cuenta por escrito: qué
+                  hay que construir, por qué, con qué límites y qué camino se descartó. Cada
+                  documento se guarda y se puede volver a leer meses después, así que el plan no
+                  vive dentro de una conversación. Son los artefactos persistentes.
+                </p>
+              </li>
+              <li
+                class="rounded-project-card border border-outline-variant bg-surface-container p-6 sm:p-8"
+              >
+                <h4 class="text-base font-semibold text-secondary">
+                  El plan se convierte en tareas con orden.
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-on-surface-variant">
+                  El documento se traduce en tareas con dependencias explícitas entre ellas. La
+                  implementación avanza por lotes y solo arranca la tarea cuyas dependencias ya
+                  están resueltas, no todo el bloque de una vez.
+                </p>
+              </li>
+              <li
+                class="rounded-project-card border border-outline-variant bg-surface-container p-6 sm:p-8"
+              >
+                <h4 class="text-base font-semibold text-secondary">
+                  Cada etapa se audita antes de pasar a la siguiente.
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-on-surface-variant">
+                  Antes de lanzar la etapa que sigue, se revisa la anterior: que hizo lo que
+                  prometía, que el documento que dice haber escrito existe y se puede leer, que
+                  las rutas que cita existen de verdad y que no se desvió de lo que recibió. Una
+                  etapa que no supera la auditoría no deja avanzar la cadena.
+                </p>
+              </li>
+              <li
+                class="rounded-project-card border border-outline-variant bg-surface-container p-6 sm:p-8"
+              >
+                <h4 class="text-base font-semibold text-secondary">
+                  El riesgo decide cuánto se revisa.
+                </h4>
+                <p class="mt-2 text-sm leading-6 text-on-surface-variant">
+                  No todo se revisa igual. Una evaluación de riesgo clasifica cada cambio y ese
+                  nivel determina qué recibe: una revisión estructural para contenido pasivo,
+                  pruebas de contrato para el trabajo normal y una revisión acotada sobre el
+                  candidato ya congelado para el resto. La decisión de revisarlo siempre es de la
+                  persona.
+                </p>
+              </li>
+            </ol>
+          </div>
 
           <p class="text-base leading-7 text-on-surface-variant">
-            Este portafolio es un ejemplo de ese método. Se utilizo la metodologia de sdd para armar este portafolio, y se implemento con Gentle-AI para la orquestación de agentes y subagentes que ayudaron a generar la estructura del mismo.
+            Este portafolio es un ejemplo del método. La estructura original se armó con SDD y el
+            caso de estudio del almacén se construyó con ODD. En los dos casos, Gentle-AI fue quien
+            coordinó los agentes que lo escribieron.
           </p>
 
           <div class="space-y-3">
