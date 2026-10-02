@@ -8,11 +8,26 @@ const css = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8')
 const repositoryUrl = 'https://github.com/Gentleman-Programming/gentle-ai'
 const badgeSrc = '/images/brand/built-with-gentle-ai.png'
 
-const approvedSteps = [
-  'Especificación.',
-  'Descomposición.',
-  'Validación por fase.',
-  'Revisión graduada por riesgo.',
+// The section documents both Gentle-AI methodologies: ODD is the default everyday flow and SDD is
+// entered when the problem is large or open, so the approved copy is per-methodology and a swapped
+// or invented step title fails instead of passing as generic filler.
+const oddSteps = [
+  'Primero se confirma que el cambio está pedido.',
+  'Después se lee lo que ya existe.',
+  'Lo simple no deja documentos.',
+  'Cada tarea se cierra sola.',
+]
+
+const sddSteps = [
+  'Primero se escribe, no se programa.',
+  'El plan se convierte en tareas con orden.',
+  'Cada etapa se audita antes de pasar a la siguiente.',
+  'El riesgo decide cuánto se revisa.',
+]
+
+const methodBlockTitles = [
+  'ODD: el flujo de todos los días',
+  'SDD: cuando el problema exige un plan escrito',
 ]
 
 function getMainSections() {
@@ -43,11 +58,16 @@ function getText(markup) {
   return markup.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
-function getSteps(metodo) {
-  const orderedList = metodo.match(/<ol\b[\s\S]*?<\/ol>/i)
+function getStepLists(metodo) {
+  const lists = [...metodo.matchAll(/<ol\b[\s\S]*?<\/ol>/gi)].map((match) => match[0])
 
-  assert.ok(orderedList, 'the method steps must be an ordered list')
-  return [...orderedList[0].matchAll(/<li\b[\s\S]*?<\/li>/gi)].map((match) => match[0])
+  return lists.map((list) => [...list.matchAll(/<li\b[\s\S]*?<\/li>/gi)].map((item) => item[0]))
+}
+
+function getBlockTitles(metodo) {
+  const withoutSteps = metodo.replace(/<li\b[\s\S]*?<\/li>/gi, '')
+
+  return [...withoutSteps.matchAll(/<h3\b[^>]*>[\s\S]*?<\/h3>/gi)].map((match) => getText(match[0]))
 }
 
 function getBadgeAnchor(metodo) {
@@ -83,6 +103,7 @@ test('Metodo states the method without claiming to build AI products', () => {
   const metodo = getMetodoSection()
   const metodoText = getText(metodo)
 
+  assert.match(metodoText, /ODD/)
   assert.match(metodoText, /No desarrollo productos de inteligencia artificial/)
   assert.match(metodoText, /herramienta de desarrollo/)
   assert.match(metodoText, /desarrollo guiado por especificación/)
@@ -91,26 +112,45 @@ test('Metodo states the method without claiming to build AI products', () => {
   assert.match(metodoText, /evaluación de riesgo/)
   assert.match(metodoText, /es de la persona/)
 
-  const steps = getSteps(metodo)
-  assert.equal(steps.length, 4, 'the method must be described in exactly four steps')
+  assert.deepEqual(
+    getBlockTitles(metodo),
+    methodBlockTitles,
+    'the method must introduce ODD as the default flow and SDD as the planned one, in that order',
+  )
 
-  for (const step of steps) {
-    const stepTitle = step.match(/<h3\b[^>]*>[\s\S]*?<\/h3>/i)
-    assert.ok(stepTitle, 'every step must carry a heading')
+  const stepLists = getStepLists(metodo)
+  assert.equal(stepLists.length, 2, 'the method must document exactly two ordered lists')
 
-    const title = getText(stepTitle[0])
-    assert.ok(
-      approvedSteps.includes(title),
-      `the approved step titles are ${approvedSteps.join(', ')} but found "${title}"`,
+  const approvedPerList = [oddSteps, sddSteps]
+
+  for (const [listIndex, steps] of stepLists.entries()) {
+    const approved = approvedPerList[listIndex]
+
+    assert.equal(
+      steps.length,
+      4,
+      `the "${methodBlockTitles[listIndex]}" list must describe exactly four steps`,
     )
+
+    for (const [stepIndex, step] of steps.entries()) {
+      const stepTitle = step.match(/<h4\b[^>]*>[\s\S]*?<\/h4>/i)
+      assert.ok(stepTitle, 'every step must carry a heading')
+
+      const title = getText(stepTitle[0])
+      assert.equal(
+        title,
+        approved[stepIndex],
+        `the approved titles for "${methodBlockTitles[listIndex]}" are ${approved.join(', ')} but step ${stepIndex + 1} reads "${title}"`,
+      )
+    }
   }
 
   assert.doesNotMatch(
-    metodo,
+    metodoText,
     /\b(\d+)\s+tests?\b/i,
     'the visible copy must not pin a test count that goes stale on the next added test',
   )
-  assert.doesNotMatch(metodo, /\b(senior|expert|experto|avanzado)\b/i)
+  assert.doesNotMatch(metodoText, /\b(senior|expert|experto|avanzado)\b/i)
 })
 
 test('Metodo credits Gentle-AI with a locally served badge', () => {
@@ -154,14 +194,14 @@ test('Metodo keeps the token-backed, responsive and keyboard-accessible contract
   assert.match(metodo, /\brounded-project-card\b/)
   assert.match(metodo, /\brounded-hero-action\b/)
 
-  for (const step of getSteps(metodo)) {
+  for (const step of getStepLists(metodo).flat()) {
     assert.match(step, /\bborder\b.*\bborder-outline-variant\b/)
     assert.match(step, /\bbg-surface-container\b/)
     assert.match(step, /\brounded-project-card\b/)
     assert.match(step, /\bp-6\b/)
     assert.match(step, /\bsm:p-8\b/)
 
-    const stepHeading = step.match(/<h3\b[^>]*>/i)[0]
+    const stepHeading = step.match(/<h4\b[^>]*>/i)[0]
     assert.match(stepHeading, /\btext-base\b/)
     assert.match(stepHeading, /\bfont-semibold\b/)
     assert.match(stepHeading, /\btext-secondary\b/)
