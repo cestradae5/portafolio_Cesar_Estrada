@@ -279,6 +279,15 @@ test('the AMSA case study documents the approved technical claims', () => {
     }
   }
 
+  // The four layers read as one compact row instead of a 2x2 block, so the section keeps the
+  // same footprint on both case study pages. Scoped to the architecture markup: a grid-cols-4
+  // anywhere else on the page would not move these cards.
+  assert.match(
+    getSectionById('arquitectura'),
+    /sm:grid-cols-4/,
+    'the layer cards must render side by side in a single four-column row',
+  )
+
   // The strongest specificity in the approved narrative must survive into the page.
   //
   // REMOVED 2026-09-30 by explicit user decision, not by oversight. Section 4.4 was rewritten to

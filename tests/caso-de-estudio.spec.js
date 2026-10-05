@@ -241,6 +241,24 @@ test('the case study documents the approved technical claims', () => {
     assert.ok(pageText.includes(claim), `the case study must document "${claim}"`)
   }
 
+  // The four approved layers live in this section, next to the decision each one supports.
+  // The card no longer lists them, so the case study is the single place they are documented.
+  for (const [layer, technologies] of Object.entries({
+    Frontend: ['React.js', 'Vite', 'Tailwind CSS', 'Lucide Icons'],
+    Backend: ['Express.js'],
+    'Base de Datos': ['PostgreSQL relacional'],
+    Seguridad: ['JWT', 'Google Auth'],
+  })) {
+    assert.ok(decisionText.includes(layer), `the architecture section must name the ${layer} layer`)
+
+    for (const technology of technologies) {
+      assert.ok(
+        decisionText.includes(technology),
+        `the ${layer} layer must list ${technology}`,
+      )
+    }
+  }
+
   assert.doesNotMatch(pageText, /códigos QR dinámicos/i)
   assert.match(decisionText, /no fue reemplazarlo por un QR dinámico/i)
   assert.equal(
