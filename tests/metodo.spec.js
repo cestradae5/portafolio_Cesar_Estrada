@@ -44,10 +44,12 @@ function getMainSections() {
 function getMetodoSection() {
   const mainStart = html.indexOf('<main')
   const sections = getMainSections()
+  // Resolved by id, not by position, so reordering cannot point this at another section.
+  const index = sections.findIndex((section) => /\bid=["']metodo["']/i.test(section))
 
-  const sectionStart = html.indexOf(sections[3], mainStart)
+  assert.notEqual(index, -1, 'the Metodo section must be declared')
 
-  assert.notEqual(sectionStart, -1, 'the Metodo section must be declared')
+  const sectionStart = html.indexOf(sections[index], mainStart)
   const sectionEnd = html.indexOf('</section>', sectionStart)
 
   assert.notEqual(sectionEnd, -1, 'the Metodo section must be closed')
@@ -78,16 +80,16 @@ function getBadgeAnchor(metodo) {
   return badges[0]
 }
 
-test('Metodo follows Proyectos and precedes Contacto inside main', () => {
+test('Metodo follows Habilidades and precedes Contacto inside main', () => {
   const sections = getMainSections()
 
   assert.ok(
     sections.length >= 5,
-    'main must expose Inicio, Habilidades, Proyectos, Metodo and Contacto in order',
+    'main must expose Inicio, Proyectos, Habilidades, Metodo and Contacto in order',
   )
   assert.match(sections[0], /\bid=["']inicio["']/i)
-  assert.match(sections[1], /\bid=["']habilidades["']/i)
-  assert.match(sections[2], /\bid=["']proyectos["']/i)
+  assert.match(sections[1], /\bid=["']proyectos["']/i)
+  assert.match(sections[2], /\bid=["']habilidades["']/i)
   assert.match(sections[3], /\bid=["']metodo["']/i)
   assert.match(sections[3], /\baria-labelledby=["']metodo-title["']/i)
   assert.match(sections[4], /\bid=["']contacto["']/i)
