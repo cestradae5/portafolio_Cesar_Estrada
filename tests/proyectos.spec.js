@@ -9,12 +9,6 @@ const approvedProject = {
   title: 'Sistema de asistencia Escolar',
   description:
     'Solución integral para gestionar y controlar la asistencia del personal docente mediante códigos QR estáticos con token rotativo, con reconocimiento biométrico facial en proceso de desarrollo. Permite generar reportes detallados por los días laborales del docente, y administrar horarios personalizados para los docentes.',
-  stackLayers: {
-    Frontend: ['React.js', 'Vite', 'Tailwind CSS', 'Lucide Icons'],
-    Backend: ['Express.js'],
-    'Base de Datos': ['PostgreSQL relacional'],
-    Seguridad: ['JWT', 'Google Auth'],
-  },
   repositoryStatus: 'Repositorio privado',
   imageSrc: '/images/projects/dashboard_kg.png',
   imageAlt: 'Vista previa del Sistema de asistencia Escolar',
@@ -25,12 +19,6 @@ const approvedProjectAmsa = {
   title: 'Sistema de gestión de almacén AMSA',
   description:
     'Sistema web de gestión de almacén que reemplazó una aplicación de escritorio en Microsoft Access, liberando el acceso que dependía de llaves atadas al equipo original. Centraliza el inventario, las entradas y salidas de insumos y la tarjeta Kardex en una sola plataforma, con formulario 1-H en PDF, búsqueda semántica sobre vectores en PostgreSQL y bitácora de auditoría de solo agregado.',
-  stackLayers: {
-    Frontend: ['Django Templates', 'Tailwind CSS (CDN)', 'Alpine.js (CDN)'],
-    Backend: ['Python', 'Django', 'ReportLab', 'Redis', 'Sentry', 'sentence-transformers'],
-    'Base de Datos': ['PostgreSQL con pgvector', 'volúmenes persistentes'],
-    Seguridad: ['Nginx como reverse proxy', 'CSRF', 'RBAC', 'backups con rclone'],
-  },
   repositoryStatus: 'Repositorio privado',
   imageSrc: '/images/amsa/19-bitacora.png',
   imageAlt: 'Bitácora de auditoría del Sistema de gestión de almacén AMSA con los registros de actividad del sistema',
@@ -111,16 +99,14 @@ test('the approved projects present only approved Spanish content and keep their
       projectText.includes(approved.description),
       `${label}: the approved Spanish project description must be present`,
     )
-    for (const [layer, technologies] of Object.entries(approved.stackLayers)) {
-      assert.ok(projectText.includes(layer), `${label}: the stack must include the ${layer} layer`)
+    // The technology stack moved to the case study pages, where each layer travels with the
+    // rationale that justifies it. The card keeps the narrative only: an inline stack here
+    // duplicated the case study and squeezed the description into a denser, harder-to-read card.
+    const stackMovedToCaseStudy = `${label}: the stack moved to the case study and must not render in the card`
 
-      for (const technology of technologies) {
-        assert.ok(
-          projectText.includes(technology),
-          `${label}: ${technology} must be listed under the project stack`,
-        )
-      }
-    }
+    assert.doesNotMatch(project, /Arquitectura y Tecnologías/i, stackMovedToCaseStudy)
+    assert.doesNotMatch(project, /Capas del sistema/i, stackMovedToCaseStudy)
+    assert.doesNotMatch(project, /<dl\b/i, stackMovedToCaseStudy)
     assert.ok(
       projectText.includes(approved.repositoryStatus),
       `${label}: the private repository status must be plain text`,
@@ -196,13 +182,17 @@ test('the approved projects expose no dead action and each links its own case st
   )
 })
 
-test('Proyectos uses token-backed cards stacked in a single column and wraps essential copy', () => {
+test('Proyectos uses token-backed cards side by side on large screens and wraps essential copy', () => {
   const proyectos = getProjectsSection()
   const cards = getCards(proyectos)
 
   assert.match(proyectos, /\bgrid\b/)
+  // One column on mobile, two from the lg breakpoint. The single-column stack was an
+  // earlier deliberate decision, now explicitly reversed: the cards were shrunk so the
+  // two of them read as one row instead of competing for the full width. This assertion
+  // now guards the two-column layout rather than forbidding it.
   assert.match(proyectos, /\bgrid-cols-1\b/)
-  assert.doesNotMatch(proyectos, /\blg:grid-cols-2\b/)
+  assert.match(proyectos, /\blg:grid-cols-2\b/)
   assert.match(proyectos, /\bgap-6\b/)
   assert.ok(cards.every((card) => /\bmin-w-0\b/.test(card)))
   assert.ok(
