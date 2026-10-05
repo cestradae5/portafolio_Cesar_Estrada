@@ -61,9 +61,13 @@ function getMainSections() {
 
 function getHabilidadesSection() {
   const sections = getMainSections()
-  const sectionStart = html.indexOf(sections[1], html.indexOf('<main'))
+  // Resolved by id, not by position: reordering sections must never make this
+  // helper silently read a different section.
+  const index = sections.findIndex((section) => /\bid=["']habilidades["']/i.test(section))
 
-  assert.notEqual(sectionStart, -1, 'the Habilidades section must be declared')
+  assert.notEqual(index, -1, 'the Habilidades section must be declared')
+
+  const sectionStart = html.indexOf(sections[index], html.indexOf('<main'))
   const sectionEnd = html.indexOf('</section>', sectionStart)
 
   assert.notEqual(sectionEnd, -1, 'the Habilidades section must be closed')
@@ -78,17 +82,18 @@ function getTracks(habilidades) {
   return [...habilidades.matchAll(/<article\b[\s\S]*?<\/article>/gi)].map((match) => match[0])
 }
 
-test('Habilidades follows Inicio and precedes Proyectos inside main', () => {
+test('Habilidades follows Proyectos and precedes Metodo inside main', () => {
   const sections = getMainSections()
 
   assert.ok(
-    sections.length >= 4,
-    'main must expose Inicio, Habilidades, Proyectos and Contacto in order',
+    sections.length >= 5,
+    'main must expose Inicio, Proyectos, Habilidades, Metodo and Contacto in order',
   )
   assert.match(sections[0], /\bid=["']inicio["']/i)
-  assert.match(sections[1], /\bid=["']habilidades["']/i)
-  assert.match(sections[1], /\baria-labelledby=["']habilidades-title["']/i)
-  assert.match(sections[2], /\bid=["']proyectos["']/i)
+  assert.match(sections[1], /\bid=["']proyectos["']/i)
+  assert.match(sections[2], /\bid=["']habilidades["']/i)
+  assert.match(sections[2], /\baria-labelledby=["']habilidades-title["']/i)
+  assert.match(sections[3], /\bid=["']metodo["']/i)
 
   const habilidades = getHabilidadesSection()
 

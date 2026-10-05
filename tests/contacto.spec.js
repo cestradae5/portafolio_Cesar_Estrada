@@ -26,8 +26,8 @@ function getContactoSection() {
 
   assert.ok(sections.length >= 5, 'Contacto must follow Metodo inside main')
   assert.match(sections[0], /\bid=["']inicio["']/i)
-  assert.match(sections[1], /\bid=["']habilidades["']/i)
-  assert.match(sections[2], /\bid=["']proyectos["']/i)
+  assert.match(sections[1], /\bid=["']proyectos["']/i)
+  assert.match(sections[2], /\bid=["']habilidades["']/i)
   assert.match(sections[3], /\bid=["']metodo["']/i)
   assert.match(sections[4], /\bid=["']contacto["']/i)
   assert.match(sections[4], /\baria-labelledby=["']contacto-title["']/i)

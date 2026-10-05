@@ -22,116 +22,78 @@
     <meta name="twitter:card" content="summary" />
   </head>
   <body class="bg-surface font-sans text-on-surface antialiased">
+    <header class="px-6 pt-10 sm:px-8 lg:px-12">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <img
+            src="/images/foto_perfil.jpg"
+            alt="Fotografía de perfil de Cesar Estrada"
+            width="88"
+            height="88"
+            decoding="async"
+            class="h-20 w-20 rounded-hero-action border border-outline-variant object-cover"
+          />
+          <p class="text-lg font-bold tracking-tight text-primary sm:text-xl">
+            Cesar Estrada
+          </p>
+        </div>
+        <nav aria-label="Navegación principal">
+          <ul class="flex flex-wrap items-center gap-2">
+            <li>
+              <a
+                href="#proyectos"
+                class="inline-flex min-h-12 items-center rounded-hero-action border border-outline-variant px-5 text-sm font-semibold text-on-surface transition-colors duration-300 ease-standard hover:border-secondary hover:text-primary focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-focus focus-visible:underline motion-reduce:transition-none"
+              >
+                Proyectos
+              </a>
+            </li>
+            <li>
+              <a
+                href="#habilidades"
+                class="inline-flex min-h-12 items-center rounded-hero-action border border-outline-variant px-5 text-sm font-semibold text-on-surface transition-colors duration-300 ease-standard hover:border-secondary hover:text-primary focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-focus focus-visible:underline motion-reduce:transition-none"
+              >
+                Habilidades
+              </a>
+            </li>
+            <li>
+              <a
+                href="#metodo"
+                class="inline-flex min-h-12 items-center rounded-hero-action border border-outline-variant px-5 text-sm font-semibold text-on-surface transition-colors duration-300 ease-standard hover:border-secondary hover:text-primary focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-focus focus-visible:underline motion-reduce:transition-none"
+              >
+                Cómo trabajo
+              </a>
+            </li>
+            <li>
+              <a
+                href="#contacto"
+                class="inline-flex min-h-12 items-center rounded-hero-action border border-outline-variant px-5 text-sm font-semibold text-on-surface transition-colors duration-300 ease-standard hover:border-secondary hover:text-primary focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-focus focus-visible:underline motion-reduce:transition-none"
+              >
+                Contacto
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
     <main>
       <section
         id="inicio"
         aria-labelledby="inicio-title"
-        class="flex min-h-screen items-center bg-surface px-6 py-16 sm:px-8 sm:py-24 lg:px-12"
+        class="flex min-h-screen items-center bg-surface px-6 py-20 sm:px-1 lg:px-10"
       >
-        <div class="mx-auto w-full max-w-3xl">
-          <p class="text-sm font-semibold tracking-wide text-secondary sm:text-base">
-            Ingeniería en Sistemas · Universidad Mariano Gálvez
+        <div class="mx-auto w-full max-w-7xl">
+          <p class="text-sm font-semibold tracking-wide text-primary sm:text-base">
+            Hola, soy Cesar Estrada
           </p>
           <h1
             id="inicio-title"
-            class="mt-4 max-w-2xl text-4xl font-bold tracking-tight text-on-surface sm:text-5xl lg:text-6xl"
+            class="mt-4 text-5xl font-bold tracking-tight text-on-surface sm:text-7xl lg:text-7xl"
           >
-            Cesar Armando Estrada Elias
+            Desarrollador Web &amp; Estudiante de último año de Ingeniería en Sistemas
           </h1>
-          <p class="mt-6 text-lg font-medium text-on-surface-variant sm:text-xl">
-            Desarrollador Web · IA y Agentes | 5.º año de Ingeniería en Sistemas
-          </p>
           <p
             class="mt-6 max-w-2xl text-base leading-7 text-on-surface-variant sm:text-lg sm:leading-8"
-          >Construyo soluciones web accesibles, claras y orientadas a resolver problemas reales con una implementación efectiva.</p>
-          <a
-            href="#contacto"
-            class="mt-8 inline-flex min-h-12 items-center justify-center rounded-hero-action bg-primary px-6 py-3 text-base font-semibold text-on-primary transition-colors duration-300 ease-standard hover:bg-primary/90 focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-focus focus-visible:underline motion-reduce:transition-none"
-          >
-            Contacto
-          </a>
-        </div>
-      </section>
-      <section
-        id="habilidades"
-        aria-labelledby="habilidades-title"
-        class="bg-surface px-6 py-20 sm:px-8 sm:py-32 lg:px-12"
-      >
-        <div class="mx-auto w-full max-w-7xl space-y-10">
-          <div class="space-y-2">
-            <h2
-              id="habilidades-title"
-              class="flex items-center gap-3 text-3xl font-bold tracking-tight text-on-surface sm:text-4xl"
-            >
-              Habilidades
-              <span aria-hidden="true" class="h-2 w-2 rounded-full bg-secondary"></span>
-            </h2>
-            <p class="max-w-2xl text-base leading-7 text-on-surface-variant sm:text-lg">
-              Dos áreas de trabajo: desarrollo web full stack y orquestación de agentes de inteligencia artificial.
-            </p>
-          </div>
-
-          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <article class="min-w-0 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10">
-              <h3 class="text-xl font-bold tracking-tight text-on-surface">Desarrollo Web</h3>
-              <dl class="mt-6 space-y-6">
-                <div>
-                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Lenguajes</dt>
-                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">JavaScript, HTML, CSS, SQL, Python, PHP</dd>
-                </div>
-
-                <div>
-                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Frameworks y librerías</dt>
-                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">React, Node.js, Express, Tailwind CSS, Vite, Django</dd>
-                </div>
-
-                <div>
-                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Bases de datos</dt>
-                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">PostgreSQL, MySQL</dd>
-                </div>
-
-                <div>
-                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Seguridad y acceso</dt>
-                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">JWT, Google OAuth, control de acceso por rol</dd>
-                </div>
-
-                <div>
-                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Infraestructura</dt>
-                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">Docker, Git, GitHub, despliegue en VPS</dd>
-                </div>
-              </dl>
-            </article>
-
-            <article class="min-w-0 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10">
-              <h3 class="text-xl font-bold tracking-tight text-on-surface">IA y Agentes</h3>
-              <dl class="mt-6 space-y-6">
-                <div>
-                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Herramientas</dt>
-                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">Claude Code, OpenCode</dd>
-                </div>
-
-                <div>
-                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Orquestación</dt>
-                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">Agentes y subagentes para generar subprocesos de programación Gentle-AI.</dd>
-                </div>
-
-                <div>
-                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Gestión de contexto</dt>
-                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">Engram para optimización de contexto en LLMs</dd>
-                </div>
-
-                <div>
-                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Metodología</dt>
-                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">SDD (Spec-Driven Development)</dd>
-                </div>
-
-                <!-- <div>
-                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Ecosistema</dt>
-                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">Gemini, HuggingFace</dd>
-                </div> -->
-              </dl>
-            </article>
-          </div>
+          >Además utilizo la Inteligencia Artificial como herramienta para optimizar mi flujo de trabajo y construir experiencias digitales claras, accesibles y orientadas a resultados.</p>
         </div>
       </section>
       <section
@@ -295,6 +257,88 @@
                   </a>
                 </div>
               </div>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section
+        id="habilidades"
+        aria-labelledby="habilidades-title"
+        class="bg-surface px-6 py-20 sm:px-8 sm:py-32 lg:px-12"
+      >
+        <div class="mx-auto w-full max-w-7xl space-y-10">
+          <div class="space-y-2">
+            <h2
+              id="habilidades-title"
+              class="flex items-center gap-3 text-3xl font-bold tracking-tight text-on-surface sm:text-4xl"
+            >
+              Habilidades
+              <span aria-hidden="true" class="h-2 w-2 rounded-full bg-secondary"></span>
+            </h2>
+            <p class="max-w-2xl text-base leading-7 text-on-surface-variant sm:text-lg">
+              Dos áreas de trabajo: desarrollo web full stack y orquestación de agentes de inteligencia artificial.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <article class="min-w-0 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10">
+              <h3 class="text-xl font-bold tracking-tight text-on-surface">Desarrollo Web</h3>
+              <dl class="mt-6 space-y-6">
+                <div>
+                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Lenguajes</dt>
+                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">JavaScript, HTML, CSS, SQL, Python, PHP</dd>
+                </div>
+
+                <div>
+                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Frameworks y librerías</dt>
+                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">React, Node.js, Express, Tailwind CSS, Vite, Django</dd>
+                </div>
+
+                <div>
+                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Bases de datos</dt>
+                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">PostgreSQL, MySQL</dd>
+                </div>
+
+                <div>
+                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Seguridad y acceso</dt>
+                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">JWT, Google OAuth, control de acceso por rol</dd>
+                </div>
+
+                <div>
+                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Infraestructura</dt>
+                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">Docker, Git, GitHub, despliegue en VPS</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article class="min-w-0 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10">
+              <h3 class="text-xl font-bold tracking-tight text-on-surface">IA y Agentes</h3>
+              <dl class="mt-6 space-y-6">
+                <div>
+                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Herramientas</dt>
+                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">Claude Code, OpenCode</dd>
+                </div>
+
+                <div>
+                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Orquestación</dt>
+                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">Agentes y subagentes para generar subprocesos de programación Gentle-AI.</dd>
+                </div>
+
+                <div>
+                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Gestión de contexto</dt>
+                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">Engram para optimización de contexto en LLMs</dd>
+                </div>
+
+                <div>
+                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Metodología</dt>
+                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">SDD (Spec-Driven Development)</dd>
+                </div>
+
+                <!-- <div>
+                  <dt class="text-xs font-semibold uppercase tracking-wide text-secondary">Ecosistema</dt>
+                  <dd class="mt-2 text-sm leading-6 text-on-surface-variant">Gemini, HuggingFace</dd>
+                </div> -->
+              </dl>
             </article>
           </div>
         </div>

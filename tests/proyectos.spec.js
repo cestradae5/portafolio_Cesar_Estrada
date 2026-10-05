@@ -52,13 +52,12 @@ function getProjectsSection() {
   const main = html.slice(mainStart, mainEnd)
   const sections = [...main.matchAll(/<section\b[^>]*>/gi)].map((match) => match[0])
 
-  assert.ok(sections.length >= 4, 'Proyectos must follow Habilidades inside main')
+  assert.ok(sections.length >= 5, 'Proyectos must follow Inicio inside main')
   assert.match(sections[0], /\bid=["']inicio["']/i)
-  assert.match(sections[1], /\bid=["']habilidades["']/i)
-  assert.match(sections[2], /\bid=["']proyectos["']/i)
-  assert.match(sections[2], /\baria-labelledby=["']proyectos-title["']/i)
+  assert.match(sections[1], /\bid=["']proyectos["']/i)
+  assert.match(sections[1], /\baria-labelledby=["']proyectos-title["']/i)
 
-  const sectionStart = html.indexOf(sections[2], mainStart)
+  const sectionStart = html.indexOf(sections[1], mainStart)
   const sectionEnd = html.indexOf('</section>', sectionStart)
 
   assert.notEqual(sectionEnd, -1, 'the Proyectos section must be closed')

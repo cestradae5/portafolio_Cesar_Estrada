@@ -8,6 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node --test \"tests/**/*.spec.js\"",
+    "test:encabezado": "node --test tests/encabezado.spec.js",
+    "test:tailwind": "node --test tests/tailwind-scale.spec.js",
     "test:inicio": "node --test tests/inicio.spec.js",
     "test:habilidades": "node --test tests/habilidades.spec.js",
     "test:proyectos": "node --test tests/proyectos.spec.js",
