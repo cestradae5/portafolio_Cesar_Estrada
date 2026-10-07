@@ -9,11 +9,11 @@ const css = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8')
 const viteConfig = readFileSync(new URL('../vite.config.js', import.meta.url), 'utf8')
 
 const approvedSections = [
-  '1. Problema',
-  '2. Restricciones',
-  '3. Decisiones de arquitectura',
-  '4. Capacidades del sistema',
-  '5. Recorrido por el sistema',
+  '1. Recorrido por el sistema',
+  '2. Problema',
+  '3. Restricciones',
+  '4. Decisiones de arquitectura',
+  '5. Capacidades del sistema',
   '6. Alternativas descartadas',
   '7. Qué salió mal y qué se rehace',
   '8. Resultado',
@@ -103,8 +103,8 @@ test('the case study keeps the approved section order and headings', () => {
   assert.equal(sections.length, 8, 'the case study must expose exactly eight labelled sections')
   assert.deepEqual(
     sections.map((section) => section[1]),
-    ['problema', 'restricciones', 'arquitectura', 'capacidades', 'recorrido-title', 'alternativas', 'que-salio-mal', 'resultado'],
-    'the walkthrough must sit between the capabilities and the rejected alternatives',
+    ['recorrido-title', 'problema', 'restricciones', 'arquitectura', 'capacidades', 'alternativas', 'que-salio-mal', 'resultado'],
+    'the walkthrough must open the case study, before the problem statement',
   )
 
   sections.forEach((section, index) => {
@@ -231,12 +231,11 @@ test('the case study documents the approved technical claims', () => {
     'PostgreSQL',
     'Docker',
     'Express',
-    'una entrada y una salida por jornada',
+    'únicamente 2 marcajes al día (entrada / salida)',
     'motivo principal fue económico',
     'Costo operativo cero',
     'cámara',
     'GPS',
-    'turnos partidos',
   ]) {
     assert.ok(pageText.includes(claim), `the case study must document "${claim}"`)
   }
