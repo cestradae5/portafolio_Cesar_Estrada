@@ -39,267 +39,10 @@
             Sistema de gestión de almacén AMSA
           </h1>
           <p class="text-base leading-7 text-on-surface-variant sm:text-lg">
-            Caso de estudio del sistema web de gestión de almacén que sustituyó a una aplicación de
-            escritorio en Microsoft Access.
+            Caso de estudio del sistema web de gestión de almacén e implementación de la generación
+            automática de documentos parametrizados según plantillas.
           </p>
         </header>
-
-        <section
-          aria-labelledby="problema"
-          class="space-y-6 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10"
-        >
-          <h2 id="problema" class="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
-            1. Problema
-          </h2>
-          <div class="space-y-4 text-base leading-7 text-on-surface-variant">
-            <p>
-              La gestión del almacén se llevaba a cabo con una aplicación de escritorio en Microsoft
-              Access, que operaba con límites reales en tres frentes:
-            </p>
-            <ul class="list-disc space-y-2 pl-6">
-              <li>
-                <strong>Sin portabilidad ni acceso.</strong> La aplicación no podía trasladarse a
-                otras máquinas, porque las llaves de acceso privadas seguían atadas a la computadora
-                original.
-              </li>
-              <li>
-                <strong>Procesos manuales.</strong> El formulario 1-H, las tarjetas Kardex y los
-                documentos de salida se elaboraban a mano en hojas de cálculo de Excel.
-              </li>
-              <li>
-                <strong>Pérdida de información e inconsistencias.</strong> Se perdía el histórico y los
-                insumos se quedaban obsoletos, lo que producía una diferencia constante entre los
-                registros dentro de Access y el inventario físico real.
-              </li>
-            </ul>
-            <p>
-              El impacto no era únicamente administrativo: alcanzaba de forma directa a la área
-              financiera, específicamente a los departamentos de Almacén y Compras.
-            </p>
-          </div>
-        </section>
-
-        <section
-          aria-labelledby="restricciones"
-          class="space-y-6 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10"
-        >
-          <h2 id="restricciones" class="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
-            2. Restricciones
-          </h2>
-          <div class="space-y-4 text-base leading-7 text-on-surface-variant">
-            <p>
-              AMSA es una institución administrativa, por lo que las compras se liquidan de forma
-              mensual. Cualquier opción de hosting con licencia o de pago habría significado gestionar
-              facturas de manera recurrente. De esa condición se desprendieron dos restricciones:
-            </p>
-            <ul class="list-disc space-y-2 pl-6">
-              <li>
-                <strong>Infraestructura y costo.</strong> El desarrollo y el despliegue usaron
-                únicamente los recursos propios de la institución, sin costo adicional en licencias ni
-                en hosting externo.
-              </li>
-              <li>
-                <strong>Servidor de aplicaciones.</strong> El despliegue reutilizó la infraestructura
-                ya existente del área de Informática, alojando el sistema en el servidor local de la
-                institución.
-              </li>
-            </ul>
-            <p>
-              Estas restricciones condicionaron todas las decisiones de arquitectura posteriores.
-            </p>
-          </div>
-        </section>
-
-        <section
-          aria-labelledby="arquitectura"
-          class="space-y-6 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10"
-        >
-          <h2 id="arquitectura" class="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
-            3. Decisiones de arquitectura
-          </h2>
-          <div class="space-y-6 text-base leading-7 text-on-surface-variant">
-            <div class="space-y-3">
-              <h3 class="text-lg font-semibold text-secondary">3.1 Capas del sistema</h3>
-              <p>
-                El sistema se organizó en cuatro capas, cada una con una responsabilidad definida:
-              </p>
-              <dl class="grid gap-3 text-sm text-on-surface sm:grid-cols-4">
-                <div
-                  class="rounded-xl border border-outline-variant bg-surface-container-high px-3 py-2"
-                >
-                  <dt class="font-semibold text-secondary">Frontend</dt>
-                  <dd class="text-on-surface-variant">
-                    Django Templates, Tailwind CSS (CDN), Alpine.js (CDN)
-                  </dd>
-                </div>
-                <div
-                  class="rounded-xl border border-outline-variant bg-surface-container-high px-3 py-2"
-                >
-                  <dt class="font-semibold text-secondary">Backend</dt>
-                  <dd class="text-on-surface-variant">
-                    Python, Django, ReportLab, Redis, Sentry, sentence-transformers
-                  </dd>
-                </div>
-                <div
-                  class="rounded-xl border border-outline-variant bg-surface-container-high px-3 py-2"
-                >
-                  <dt class="font-semibold text-secondary">Base de Datos</dt>
-                  <dd class="text-on-surface-variant">
-                    PostgreSQL con extensión pgvector, volúmenes persistentes
-                  </dd>
-                </div>
-                <div
-                  class="rounded-xl border border-outline-variant bg-surface-container-high px-3 py-2"
-                >
-                  <dt class="font-semibold text-secondary">Seguridad</dt>
-                  <dd class="text-on-surface-variant">
-                    Nginx como reverse proxy, CSRF, RBAC, backups con rclone
-                  </dd>
-                </div>
-              </dl>
-              <p>
-                Django aparece en dos capas de forma deliberada: Django Templates son la superficie
-                del frontend y Django es el backend. ReportLab se ubica en el backend porque genera
-                los PDF dentro del proceso de Django, es decir, del lado del servidor.
-              </p>
-            </div>
-
-            <div class="space-y-3">
-              <h3 class="text-lg font-semibold text-secondary">3.2 Contenedores y red interna</h3>
-              <p>
-                El despliegue se hizo sobre una red interna de Docker, con un contenedor para la
-                aplicación web (frontend), uno para la base de datos (pgvector) y uno para Redis. Los
-                servicios se resuelven por DNS interno de Docker: web:8000, db:5432 y redis:6379.
-              </p>
-            </div>
-
-            <div class="space-y-3">
-              <h3 class="text-lg font-semibold text-secondary">3.3 Publicación y respaldos</h3>
-              <p>
-                Nginx termina las peticiones como reverse proxy y los respaldos se envían a Google
-                Drive mediante rclone.
-              </p>
-            </div>
-
-            <div class="space-y-3">
-              <h3 class="text-lg font-semibold text-secondary">3.4 Observabilidad</h3>
-              <p>Sentry cubre la observabilidad y el registro de errores.</p>
-            </div>
-          </div>
-        </section>
-
-        <section
-          aria-labelledby="capacidades"
-          class="space-y-6 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10"
-        >
-          <h2 id="capacidades" class="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
-            4. Capacidades del sistema
-          </h2>
-          <div class="space-y-6 text-base leading-7 text-on-surface-variant">
-            <div class="space-y-3">
-              <h3 class="text-lg font-semibold text-secondary">4.1 Inventario y catálogo</h3>
-              <p>
-                El módulo de inventario muestra en tiempo real el stock de insumos, incorporando
-                alertas tipo semáforo para niveles límite, además de opciones de filtrado por
-                categoría y búsqueda por ID o nombre. Por su parte, el catálogo gestiona los nuevos
-                productos para el almacén, utilizando el modelo SentenceTransformers para validar la
-                similitud semántica y prevenir registros duplicados. Asimismo, la asignación de
-                renglones de cada insumo se rige estrictamente por la 7.ª edición del Manual de
-                Clasificaciones presupuestarias para el Sector Público de Guatemala.
-              </p>
-              <p>
-                La exactitud contable se apoya en una doble columna: stock_actual, que es el valor
-                volátil y el que se ve, y stock_base, preexistente y que los movimientos nunca tocan,
-                que es el invariante del Kardex.
-              </p>
-            </div>
-
-            <div class="space-y-3">
-              <h3 class="text-lg font-semibold text-secondary">4.2 Entradas</h3>
-              <p>
-                El ingreso de insumos al almacén se gestiona mediante la emisión de la Constancia de
-                Ingreso a Almacén (Formulario 1-H). Para garantizar el control, la incorporación de
-                nuevo stock al inventario debe transitar por un flujo de aprobación con cuatro estados
-                de revisión: Borrador, Pendiente, Aprobada y Completada.
-              </p>
-              <p>
-                El sistema registra el encabezado del formulario con los campos requeridos y asigna la
-                entrada de existencias a los insumos previamente guardados en el catálogo. Asimismo,
-                genera un archivo PDF cuyo diseño coincide con la versión física del Formulario 1-H
-                autorizado, conservando una bitácora detallada de cambios e historial de edición. Para
-                la seguridad de los datos, el proceso de anulación opera en cascada y valida en todo
-                momento que las existencias no resulten en valores negativos.
-              </p>
-            </div>
-
-            <div class="space-y-3">
-              <h3 class="text-lg font-semibold text-secondary">4.3 Salidas</h3>
-              <p>
-                El sistema contempla dos métodos para gestionar las salidas de inventario:
-              </p>
-              <p>
-                <strong>Salida Total.</strong> Vincula de forma directa la Constancia de Ingreso
-                (Formulario 1-H) y la totalidad de sus insumos registrados, procesando el egreso
-                exacto de la cantidad que ingresó originalmente en dicho documento.
-              </p>
-              <p>
-                <strong>Salida Parcial.</strong> Permite el egreso individual por insumo y cantidad
-                solicitada. El sistema valida automáticamente que las salidas no generen stock
-                negativo.
-              </p>
-              <p>
-                <strong>Flujo de Aprobación.</strong> Las salidas cumplen con el mismo flujo de
-                revisión y ejecución establecido para los ingresos (Borrador, Pendiente, Aprobada y
-                Completada).
-              </p>
-              <p>
-                <strong>Constancia en PDF.</strong> Cada salida genera su constancia en PDF.
-              </p>
-            </div>
-
-            <div class="space-y-3">
-              <h3 class="text-lg font-semibold text-secondary">4.4 Kardex</h3>
-              <p>
-                Ofrece trazabilidad detallada de los movimientos de almacén mediante filtros por
-                producto y rango de fechas, ajustando automáticamente el saldo inicial. Reporta
-                entradas (con Formulario 1-H, factura, proveedor, precio unitario y cantidad) y
-                salidas (con número de Requisición y cantidad). Incluye la opción de descargar el
-                reporte de movimientos en PDF.
-              </p>
-            </div>
-
-            <div class="space-y-3">
-              <h3 class="text-lg font-semibold text-secondary">4.5 Búsqueda semántica real</h3>
-              <p>
-                No es simulada. El modelo intfloat/multilingual-e5-small, ejecutado con
-                sentence-transformers, genera vectores de 384 dimensiones en pgvector con índice
-                HNSW y distancia coseno. El embedding se regenera por sí mismo solo cuando cambian
-                el nombre, la descripción o la categoría, mediante un hook sobre Producto.save(). La
-                búsqueda es híbrida: coincidencia exacta de código cuando el patrón corresponde y
-                búsqueda semántica pura en el resto de los casos.
-              </p>
-            </div>
-
-            <div class="space-y-3">
-              <h3 class="text-lg font-semibold text-secondary">4.6 Bitácora de auditoría</h3>
-              <p>
-                Garantiza la trazabilidad total mediante el registro de acciones operativas, inicios
-                de sesión, descargas de archivos y eventos del sistema. Incluye herramientas de
-                auditoría con filtros por usuario, fecha, acción y módulo.
-              </p>
-            </div>
-
-            <div class="space-y-3">
-              <h3 class="text-lg font-semibold text-secondary">4.7 Seguridad operacional</h3>
-              <p>
-                Sesión única con protección contra el doble ingreso respaldada en Redis, cierre
-                forzado de sesiones remotas por parte de un administrador, y restablecimiento de
-                contraseña con matriz de permisos y un
-                límite de tres solicitudes cada 24 horas.
-              </p>
-            </div>
-          </div>
-        </section>
 
         <section
           id="recorrido"
@@ -307,7 +50,7 @@
           class="space-y-6 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10"
         >
           <h2 id="recorrido-title" class="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
-            5. Recorrido por el sistema
+            1. Recorrido por el sistema
           </h2>
           <div class="space-y-6 text-base leading-7 text-on-surface-variant">
             <p>
@@ -591,6 +334,311 @@
             <p class="text-sm text-on-surface-variant">
               Las imágenes corresponden a pantallas reales del sistema en funcionamiento.
             </p>
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="problema"
+          class="space-y-6 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10"
+        >
+          <h2 id="problema" class="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
+            2. Problema
+          </h2>
+          <div class="space-y-4 text-base leading-7 text-on-surface-variant">
+            <p>
+              La gestión del almacén se llevaba a cabo con una aplicación de escritorio en Microsoft
+              Access, que operaba con límites reales en tres frentes:
+            </p>
+            <ul class="list-disc space-y-2 pl-6">
+              <li>
+                <strong>Sin portabilidad ni acceso.</strong> La aplicación no podía trasladarse a
+                otras máquinas, porque las llaves de acceso privadas seguían atadas a la computadora
+                original.
+              </li>
+              <li>
+                <strong>Procesos manuales.</strong> El formulario 1-H, las tarjetas Kardex y las
+                requisiciones de salida se elaboraban a mano en hojas de cálculo de Excel.
+              </li>
+              <li>
+                <strong>Pérdida de información e inconsistencias.</strong> Se perdía el histórico y los
+                insumos se quedaban obsoletos, lo que producía una diferencia constante entre los
+                registros dentro de Access y el inventario físico real.
+              </li>
+            </ul>
+            <p>
+              El impacto no era únicamente administrativo: alcanzaba de forma directa a la área
+              financiera, específicamente a los departamentos de Almacén y Compras.
+            </p>
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="restricciones"
+          class="space-y-6 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10"
+        >
+          <h2 id="restricciones" class="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
+            3. Restricciones
+          </h2>
+          <div class="space-y-4 text-base leading-7 text-on-surface-variant">
+            <p>
+              Debido a la imposibilidad de contratar un servicio de hosting externo, se optó por
+              reutilizar la infraestructura existente del área de Informática alojando el sistema en
+              el servidor local de la institución. Esto permitió realizar el desarrollo y el
+              despliegue utilizando únicamente recursos propios, sin costos adicionales en licencias
+              o proveedores externos. Dichas restricciones condicionaron todas las decisiones de
+              arquitectura posteriores.
+            </p>
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="arquitectura"
+          class="space-y-6 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10"
+        >
+          <h2 id="arquitectura" class="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
+            4. Decisiones de arquitectura
+          </h2>
+          <div class="space-y-6 text-base leading-7 text-on-surface-variant">
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">4.1 Capas del sistema</h3>
+              <p>
+                El sistema utiliza una arquitectura monolítica tradicional
+                <strong>Django MVT</strong> (Modelo, Vista, Template) dividida en cuatro capas
+                principales:
+              </p>
+              <dl class="grid gap-3 text-sm text-on-surface sm:grid-cols-4">
+                <div
+                  class="rounded-xl border border-outline-variant bg-surface-container-high px-3 py-2"
+                >
+                  <dt class="font-semibold text-secondary">Vistas y plantillas</dt>
+                  <dd class="text-on-surface-variant">
+                    Django Templates, Tailwind CSS (CDN), Alpine.js (CDN)
+                  </dd>
+                </div>
+                <div
+                  class="rounded-xl border border-outline-variant bg-surface-container-high px-3 py-2"
+                >
+                  <dt class="font-semibold text-secondary">Modelo y lógica de negocio</dt>
+                  <dd class="text-on-surface-variant">
+                    Python, Django, ReportLab, Redis, Sentry, sentence-transformers
+                  </dd>
+                </div>
+                <div
+                  class="rounded-xl border border-outline-variant bg-surface-container-high px-3 py-2"
+                >
+                  <dt class="font-semibold text-secondary">Base de datos</dt>
+                  <dd class="text-on-surface-variant">
+                    PostgreSQL con extensión pgvector, volúmenes persistentes
+                  </dd>
+                </div>
+                <div
+                  class="rounded-xl border border-outline-variant bg-surface-container-high px-3 py-2"
+                >
+                  <dt class="font-semibold text-secondary">Seguridad</dt>
+                  <dd class="text-on-surface-variant">
+                    Nginx como reverse proxy, CSRF, RBAC, backups con rclone
+                  </dd>
+                </div>
+              </dl>
+              <ul class="list-disc space-y-2 pl-6">
+                <li>
+                  <strong>Vistas y plantillas:</strong> Generación de HTML en servidor (Django
+                  Templates), interfaz estilizada con Tailwind CSS y microinteracciones cliente
+                  (autocompletado, modales) gestionadas con Alpine.js.
+                </li>
+                <li>
+                  <strong>Modelo y lógica de negocio:</strong> Núcleo en Python y Django, apoyado por
+                  Redis, ReportLab (generación de documentos), Sentry (gestión de errores) y
+                  <code>sentence-transformers</code> (vectorización/IA).
+                </li>
+                <li>
+                  <strong>Base de datos:</strong> PostgreSQL con la extensión <code>pgvector</code>
+                  para búsqueda vectorial y uso de volúmenes persistentes.
+                </li>
+                <li>
+                  <strong>Seguridad e infraestructura:</strong> Proxy inverso con Nginx, control de
+                  acceso basado en roles (RBAC), protección contra CSRF y copias de seguridad remotas
+                  con <code>rclone</code>.
+                </li>
+              </ul>
+              <p><strong>Flujo de solicitud:</strong></p>
+              <pre
+                class="overflow-x-auto rounded-xl border border-outline-variant bg-surface-container-high p-4 font-mono text-xs leading-6 text-on-surface"
+              ><code>Navegador → Nginx → Django (Lógica/PostgreSQL) → Renderizado de Template HTML → Navegador</code></pre>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">4.2 Contenedores y red interna</h3>
+              <p>
+                El despliegue se realizó sobre una red interna de Docker aislada. Los servicios se
+                resuelven mediante el DNS interno de Docker:
+              </p>
+              <ul class="list-disc space-y-2 pl-6">
+                <li>
+                  <strong>web</strong> (puerto 8000): Ejecuta la aplicación Django completa.
+                </li>
+                <li>
+                  <strong>db</strong> (puerto 5432): Base de datos PostgreSQL con pgvector.
+                </li>
+                <li>
+                  <strong>redis</strong> (puerto 6379): Servidor en memoria para caché y soporte de
+                  la aplicación.
+                </li>
+              </ul>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">4.3 Publicación y respaldos</h3>
+              <ul class="list-disc space-y-2 pl-6">
+                <li>
+                  <strong>Publicación:</strong> Nginx actúa como reverse proxy en el frontal,
+                  recibiendo las peticiones externas y canalizándolas hacia el contenedor web.
+                </li>
+                <li>
+                  <strong>Respaldos:</strong> Copias de seguridad automáticas enviadas a
+                  almacenamiento externo en Google Drive mediante rclone.
+                </li>
+              </ul>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">4.4 Observabilidad</h3>
+              <p>
+                Integración con Sentry para el rastreo de eventos, registro de errores y monitoreo
+                del estado de la aplicación.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="capacidades"
+          class="space-y-6 rounded-project-card border border-outline-variant bg-surface-container p-8 sm:p-10"
+        >
+          <h2 id="capacidades" class="text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
+            5. Capacidades del sistema
+          </h2>
+          <div class="space-y-6 text-base leading-7 text-on-surface-variant">
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">5.1 Inventario y catálogo</h3>
+              <p><strong>Módulo de Inventario</strong></p>
+              <ul class="list-disc space-y-2 pl-6">
+                <li>
+                  <strong>Visualización de existencias:</strong> Muestra el stock vigente de insumos
+                  al momento de renderizar la página en el servidor.
+                </li>
+                <li>
+                  <strong>Sistema de alertas:</strong> Notificaciones visuales tipo semáforo para
+                  indicar niveles límite de stock.
+                </li>
+                <li>
+                  <strong>Búsqueda y filtrado:</strong> Herramientas para filtrar por categoría y
+                  realizar búsquedas específicas por ID o nombre.
+                </li>
+              </ul>
+              <p><strong>Catálogo de Productos</strong></p>
+              <ul class="list-disc space-y-2 pl-6">
+                <li>
+                  <strong>Gestión de nuevos ingresos:</strong> Control e incorporación de nuevos
+                  productos al almacén.
+                </li>
+                <li>
+                  <strong>Prevención de duplicados:</strong> Integración del modelo
+                  SentenceTransformers para evaluar la similitud semántica de los textos y evitar
+                  registros repetidos.
+                </li>
+                <li>
+                  <strong>Cumplimiento normativo:</strong> Asignación de renglones presupuestarios
+                  regida estrictamente por la 7.ª edición del Manual de Clasificaciones
+                  Presupuestarias para el Sector Público de Guatemala.
+                </li>
+              </ul>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">5.2 Entradas</h3>
+              <p>
+                El ingreso de insumos al almacén se gestiona mediante la emisión de la Constancia de
+                Ingreso a Almacén (Formulario 1-H). Para garantizar el control, la incorporación de
+                nuevo stock al inventario debe transitar por un flujo de aprobación con cuatro estados
+                de revisión: Borrador, Pendiente, Aprobada y Completada.
+              </p>
+              <p>
+                El sistema registra el encabezado del formulario con los campos requeridos y asigna la
+                entrada de existencias a los insumos previamente guardados en el catálogo. Asimismo,
+                genera un archivo PDF cuyo diseño coincide con la versión física del Formulario 1-H
+                autorizado, conservando una bitácora detallada de cambios e historial de edición. Para
+                la seguridad de los datos, el proceso de anulación opera en cascada y valida en todo
+                momento que las existencias no resulten en valores negativos.
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">5.3 Salidas</h3>
+              <p>
+                El sistema contempla dos métodos para gestionar las salidas de inventario:
+              </p>
+              <p>
+                <strong>Salida Total.</strong> Vincula de forma directa la Constancia de Ingreso
+                (Formulario 1-H) y la totalidad de sus insumos registrados, procesando el egreso
+                exacto de la cantidad que ingresó originalmente en dicho documento.
+              </p>
+              <p>
+                <strong>Salida Parcial.</strong> Permite el egreso individual por insumo y cantidad
+                solicitada. El sistema valida automáticamente que las salidas no generen stock
+                negativo.
+              </p>
+              <p>
+                <strong>Flujo de Aprobación.</strong> Las salidas cumplen con el mismo flujo de
+                revisión y ejecución establecido para los ingresos (Borrador, Pendiente, Aprobada y
+                Completada).
+              </p>
+              <p>
+                <strong>Constancia en PDF.</strong> Cada salida genera su constancia en PDF.
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">5.4 Kardex</h3>
+              <p>
+                Ofrece trazabilidad detallada de los movimientos de almacén mediante filtros por
+                producto y rango de fechas, ajustando automáticamente el saldo inicial. Reporta
+                entradas (con Formulario 1-H, factura, proveedor, precio unitario y cantidad) y
+                salidas (con número de Requisición y cantidad). Incluye la opción de descargar el
+                reporte de movimientos en PDF.
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">5.5 Búsqueda semántica real</h3>
+              <p>
+                No es simulada. El modelo intfloat/multilingual-e5-small, ejecutado con
+                sentence-transformers, genera vectores de 384 dimensiones en pgvector con índice
+                HNSW y distancia coseno. El embedding se regenera por sí mismo solo cuando cambian
+                el nombre, la descripción o la categoría, mediante un hook sobre Producto.save(). La
+                búsqueda es híbrida: coincidencia exacta de código cuando el patrón corresponde y
+                búsqueda semántica pura en el resto de los casos.
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">5.6 Bitácora de auditoría</h3>
+              <p>
+                Garantiza la trazabilidad total mediante el registro de acciones operativas, inicios
+                de sesión, descargas de archivos y eventos del sistema. Incluye herramientas de
+                auditoría con filtros por usuario, fecha, acción y módulo.
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <h3 class="text-lg font-semibold text-secondary">5.7 Seguridad operacional</h3>
+              <p>
+                Sesión única con protección contra el doble ingreso respaldada en Redis, cierre
+                forzado de sesiones remotas por parte de un administrador, y restablecimiento de
+                contraseña con matriz de permisos y un
+                límite de tres solicitudes cada 24 horas.
+              </p>
+            </div>
           </div>
         </section>
 
