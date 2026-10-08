@@ -9,11 +9,11 @@ const css = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8')
 const viteConfig = readFileSync(new URL('../vite.config.js', import.meta.url), 'utf8')
 
 const approvedSections = [
-  '1. Problema',
-  '2. Restricciones',
-  '3. Decisiones de arquitectura',
-  '4. Capacidades del sistema',
-  '5. Recorrido por el sistema',
+  '1. Recorrido por el sistema',
+  '2. Problema',
+  '3. Restricciones',
+  '4. Decisiones de arquitectura',
+  '5. Capacidades del sistema',
   '6. Alternativas descartadas',
   '7. Qué salió mal y qué se rehace',
   '8. Resultado',
@@ -113,8 +113,8 @@ test('the AMSA case study keeps the approved section order and headings', () => 
   assert.equal(sections.length, 8, 'the case study must expose exactly eight labelled sections')
   assert.deepEqual(
     sections.map((section) => section[1]),
-    ['problema', 'restricciones', 'arquitectura', 'capacidades', 'recorrido-title', 'alternativas', 'que-salio-mal', 'resultado'],
-    'the walkthrough must sit between the capabilities and the rejected alternatives',
+    ['recorrido-title', 'problema', 'restricciones', 'arquitectura', 'capacidades', 'alternativas', 'que-salio-mal', 'resultado'],
+    'the walkthrough must be the first section after the header',
   )
 
   sections.forEach((section, index) => {
@@ -243,15 +243,15 @@ test('the AMSA walkthrough embeds the video and the real system screenshots', ()
 
 test('the AMSA case study documents the approved technical claims', () => {
   const pageText = getText(getMain())
-  const architectureText = getText(getSectionById('arquitectura'))
+  const architectureMarkup = getSectionById('arquitectura')
+  const architectureText = getText(architectureMarkup)
   const capabilityText = getText(getSectionById('capacidades'))
 
   for (const claim of [
     'pgvector',
     'HNSW',
     'sentence-transformers',
-    'stock_base',
-    'stock_actual',
+    'SentenceTransformers',
     'Kardex',
     'Nginx',
     'RBAC',
@@ -263,10 +263,16 @@ test('the AMSA case study documents the approved technical claims', () => {
   }
 
   // The four approved layers travel with the exact technologies the project uses.
+  //
+  // The layer names were corrected from "Frontend"/"Backend" to the MVT labels below. The old
+  // labels encoded a client-server split that the project owner corrected as factually wrong: AMSA
+  // is a traditional Django MVT monolith that renders its HTML on the server, with no separate
+  // frontend and no SPA framework. A test still keyed on the old labels would have certified that
+  // wrong framing and quietly licensed the split to be reintroduced, so the loop is the guard now.
   for (const [layer, technologies] of Object.entries({
-    Frontend: ['Django Templates', 'Tailwind CSS (CDN)', 'Alpine.js (CDN)'],
-    Backend: ['Python', 'Django', 'ReportLab', 'Redis', 'Sentry', 'sentence-transformers'],
-    'Base de Datos': ['PostgreSQL', 'pgvector', 'volúmenes persistentes'],
+    'Vistas y plantillas': ['Django Templates', 'Tailwind CSS (CDN)', 'Alpine.js (CDN)'],
+    'Modelo y lógica de negocio': ['Python', 'Django', 'ReportLab', 'Redis', 'Sentry', 'sentence-transformers'],
+    'Base de datos': ['PostgreSQL', 'pgvector', 'volúmenes persistentes'],
     Seguridad: ['Nginx como reverse proxy', 'CSRF', 'RBAC', 'backups con rclone'],
   })) {
     assert.ok(architectureText.includes(layer), `the architecture section must name the ${layer} layer`)
@@ -278,6 +284,59 @@ test('the AMSA case study documents the approved technical claims', () => {
       )
     }
   }
+
+  // The card labels themselves are asserted, not just the section text. The lead paragraph names
+  // the four layers too, so an `includes` check over the whole section would keep passing even if a
+  // card were relabelled back to a client-server name.
+  assert.deepEqual(
+    [...architectureMarkup.matchAll(/<dt\b[^>]*>([\s\S]*?)<\/dt>/gi)].map((match) => getText(match[0])),
+    ['Vistas y plantillas', 'Modelo y lógica de negocio', 'Base de datos', 'Seguridad'],
+    'the layer cards must be labelled as Django MVT responsibilities, in the approved order',
+  )
+
+  // The client-server framing must stay gone from the architecture section. "Frontend" and
+  // "Backend" are the exact words of the defect the owner corrected, so they are forbidden as
+  // capitalized labels. The one legitimate mention is the sentence that DENIES the split, and it
+  // is lowercase ("frontend y backend") on purpose, which is why this guard is case-sensitive.
+  const clientServerSplitGone =
+    'the architecture section must not reintroduce the client-server split; AMSA is a server-rendered MVT monolith'
+
+  assert.doesNotMatch(architectureText, /\bFrontend\b/, clientServerSplitGone)
+  assert.doesNotMatch(architectureText, /\bBackend\b/, clientServerSplitGone)
+
+  assert.match(
+    architectureText,
+    /\bMVT\b/,
+    'the architecture section must state that the system follows Django MVT',
+  )
+  assert.match(
+    architectureText,
+    /Generación de HTML en servidor|Renderizado de Template HTML/,
+    'the architecture section must state that the server renders the HTML',
+  )
+  assert.match(
+    architectureText,
+    /Alpine\.js/,
+    'the architecture section must keep Alpine.js as the micro-interactivity layer',
+  )
+  assert.match(
+    architectureText,
+    /microinteracciones|autocompletado/,
+    'the architecture section must show Alpine.js driving micro-interactivity, not a SPA',
+  )
+
+  // The flow block is the clearest proof of the architecture, so its presence and its shape are
+  // both asserted: the hops and the mobile scroll guard.
+  assert.match(
+    architectureMarkup,
+    /<pre\b[\s\S]*?Navegador\s*→\s*Nginx\s*→\s*Django[\s\S]*?<\/pre>/i,
+    'the architecture section must publish the server-rendered request flow as a code block',
+  )
+  assert.match(
+    architectureMarkup,
+    /<pre\b[^>]*\boverflow-x-auto\b/i,
+    'the flow code block must scroll horizontally instead of breaking the layout on mobile',
+  )
 
   // The four layers read as one compact row instead of a 2x2 block, so the section keeps the
   // same footprint on both case study pages. Scoped to the architecture markup: a grid-cols-4
@@ -312,9 +371,9 @@ test('the AMSA case study documents the approved technical claims', () => {
     'coseno',
     'Producto.save()',
     'tres solicitudes cada 24 horas',
-    'web:8000',
-    'db:5432',
-    'redis:6379',
+    'puerto 8000',
+    'puerto 5432',
+    'puerto 6379',
   ]) {
     assert.ok(capabilityText.includes(claim) || pageText.includes(claim), `the case study must document "${claim}"`)
   }
